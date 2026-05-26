@@ -1,0 +1,10 @@
+id_pedido,data,cliente,valor_total,status
+1,15/12/2026,José,85.00,finalizado
+2,15/12/2026,João,65.00,aberto
+3,15/12/2026,José,85.00,aberto
+4,25/12/2026,José,85.00,aberto
+5,27/12/2026,José,85.00,aberto
+6,01/01/2027,José,85.00,aberto
+7,02/01/2027,José,85.00,aberto
+8,10/01/2027,José,85.00,aberto
+9,17/01/2027,José,85.00,aberto

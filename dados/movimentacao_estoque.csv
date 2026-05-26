@@ -1,0 +1,4 @@
+id, data, id_insumo, tipo, quantidade, origem
+1,15/12/2026,1,saida,0.2,pedido_1
+2,15/12/2026,2,saida,0.8,pedido_1
+1,15/12/2026,3,saida,0.2,pedido_1
