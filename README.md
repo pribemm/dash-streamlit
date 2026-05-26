@@ -1,2 +1,11 @@
-# dash-straemlit
-Repositório para desenvolvimento de dashboards como microserviços em um projeto de Engenharia de Software. Cada dashboard será modular e independente, permitindo integração em uma aplicação maior para visualização e análise de dados, com foco em escalabilidade e boas práticas de arquitetura.
+# Dashboards como Microserviços - Engenharia de Software
+
+## Descrição
+
+Este repositório contém dashboards desenvolvidos como microserviços para um projeto de Engenharia de Software. Cada dashboard é independente e pode ser integrado a uma aplicação maior para visualização e análise de dados.
+
+---
+
+## Arquitetura
+
+O projeto segue uma abordagem baseada em microserviços, onde cada dashboard funciona de forma isolada, podendo ser executado individualmente e posteriormente integrado ao sistema principal.
