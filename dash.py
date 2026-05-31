@@ -1,10 +1,12 @@
+# streamlit run dash.py
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
-from scripts.evolucao_mensal import gerar_grafico_mensal, gerar_grafico_semanal
+from scripts.geracao_dados import gerar_grafico_mensal,gerar_grafico_semanal, carregar_dados_pedido
 # =========================================================
 # 2. Dados
 # =========================================================
+
 
 faturamento_total =65.00
 vendas_periodo = 321
@@ -153,7 +155,8 @@ with card_21:
         st.write("### Evolução Semanal")
         
         # 1. Chama a função do outro script que gera o gráfico
-        figura_semanal = gerar_grafico_semanal()
+        df_pedido = carregar_dados_pedido()  # Certifique-se de que essa função retorna o DataFrame necessário para gerar o gráfico
+        figura_semanal = gerar_grafico_semanal(df_pedido)
         
         # 2. Exibe a figura gerada dentro do container do Streamlit
         st.pyplot(figura_semanal)

@@ -1,0 +1,226 @@
+{
+    "data": [
+        {
+            "active": true,
+            "category": {
+                "id": 2,
+                "name": "Acompanhamentos"
+            },
+            "code": "INS-ARROZ",
+            "created_at": "2026-05-30T07:15:55Z",
+            "current_stock": "1099.28",
+            "expiration_date": "2026-11-26",
+            "id": 1,
+            "manufacturing_date": "2026-05-25",
+            "minimum_stock": "10.0",
+            "name": "Arroz branco",
+            "notes": "Pacote de arroz tipo 1.",
+            "purchase_price": "5.9",
+            "received_at": "2026-05-27",
+            "supplier": {
+                "id": 2,
+                "name": "Atacado Graos e Verduras"
+            },
+            "unit": "kg",
+            "updated_at": "2026-05-30T07:19:25Z"
+        },
+        {
+            "active": true,
+            "category": {
+                "id": 1,
+                "name": "Proteinas"
+            },
+            "code": "INS-CARNE",
+            "created_at": "2026-05-30T07:15:55Z",
+            "current_stock": "699.82",
+            "expiration_date": "2026-06-19",
+            "id": 4,
+            "manufacturing_date": "2026-05-28",
+            "minimum_stock": "5.0",
+            "name": "Carne bovina em cubos",
+            "notes": "Carne para marmita tradicional.",
+            "purchase_price": "29.9",
+            "received_at": "2026-05-28",
+            "supplier": {
+                "id": 1,
+                "name": "Distribuidora Carnes Maringa"
+            },
+            "unit": "kg",
+            "updated_at": "2026-05-30T07:19:25Z"
+        },
+        {
+            "active": true,
+            "category": {
+                "id": 2,
+                "name": "Acompanhamentos"
+            },
+            "code": "INS-FEIJAO",
+            "created_at": "2026-05-30T07:15:55Z",
+            "current_stock": "799.52",
+            "expiration_date": "2026-11-26",
+            "id": 2,
+            "manufacturing_date": "2026-05-25",
+            "minimum_stock": "8.0",
+            "name": "Feijao carioca",
+            "notes": "Feijao para preparo diario.",
+            "purchase_price": "8.5",
+            "received_at": "2026-05-27",
+            "supplier": {
+                "id": 2,
+                "name": "Atacado Graos e Verduras"
+            },
+            "unit": "kg",
+            "updated_at": "2026-05-30T07:19:25Z"
+        },
+        {
+            "active": true,
+            "category": {
+                "id": 2,
+                "name": "Acompanhamentos"
+            },
+            "code": "INS-LEGUMES",
+            "created_at": "2026-05-30T07:15:55Z",
+            "current_stock": "500.0",
+            "expiration_date": "2026-06-06",
+            "id": 7,
+            "manufacturing_date": "2026-05-29",
+            "minimum_stock": "6.0",
+            "name": "Legumes cozidos",
+            "notes": "Cenoura, abobrinha e brocolis.",
+            "purchase_price": "9.2",
+            "received_at": "2026-05-29",
+            "supplier": {
+                "id": 2,
+                "name": "Atacado Graos e Verduras"
+            },
+            "unit": "kg",
+            "updated_at": "2026-05-30T07:19:25Z"
+        },
+        {
+            "active": true,
+            "category": {
+                "id": 1,
+                "name": "Proteinas"
+            },
+            "code": "INS-LOMBO",
+            "created_at": "2026-05-30T07:15:55Z",
+            "current_stock": "500.0",
+            "expiration_date": "2026-06-17",
+            "id": 8,
+            "manufacturing_date": "2026-05-28",
+            "minimum_stock": "5.0",
+            "name": "Lombo suino",
+            "notes": "Lombo para marmita executiva.",
+            "purchase_price": "21.4",
+            "received_at": "2026-05-28",
+            "supplier": {
+                "id": 1,
+                "name": "Distribuidora Carnes Maringa"
+            },
+            "unit": "kg",
+            "updated_at": "2026-05-30T07:19:25Z"
+        },
+        {
+            "active": true,
+            "category": {
+                "id": 2,
+                "name": "Acompanhamentos"
+            },
+            "code": "INS-MACARRAO",
+            "created_at": "2026-05-30T07:15:55Z",
+            "current_stock": "600.0",
+            "expiration_date": "2027-01-25",
+            "id": 6,
+            "manufacturing_date": "2026-05-10",
+            "minimum_stock": "8.0",
+            "name": "Macarrao penne",
+            "notes": "Massa para marmitas especiais.",
+            "purchase_price": "6.8",
+            "received_at": "2026-05-20",
+            "supplier": {
+                "id": 2,
+                "name": "Atacado Graos e Verduras"
+            },
+            "unit": "kg",
+            "updated_at": "2026-05-30T07:19:25Z"
+        },
+        {
+            "active": true,
+            "category": {
+                "id": 2,
+                "name": "Acompanhamentos"
+            },
+            "code": "INS-SALADA",
+            "created_at": "2026-05-30T07:15:55Z",
+            "current_stock": "449.68",
+            "expiration_date": "2026-06-04",
+            "id": 5,
+            "manufacturing_date": "2026-05-29",
+            "minimum_stock": "3.0",
+            "name": "Mix de salada",
+            "notes": "Legumes e folhas para salada.",
+            "purchase_price": "7.5",
+            "received_at": "2026-05-29",
+            "supplier": {
+                "id": 2,
+                "name": "Atacado Graos e Verduras"
+            },
+            "unit": "kg",
+            "updated_at": "2026-05-30T07:19:25Z"
+        },
+        {
+            "active": true,
+            "category": {
+                "id": 2,
+                "name": "Acompanhamentos"
+            },
+            "code": "INS-MOLHO",
+            "created_at": "2026-05-30T07:15:55Z",
+            "current_stock": "420.0",
+            "expiration_date": "2026-09-27",
+            "id": 9,
+            "manufacturing_date": "2026-05-18",
+            "minimum_stock": "5.0",
+            "name": "Molho de tomate",
+            "notes": "Molho base para pratos com massa.",
+            "purchase_price": "7.1",
+            "received_at": "2026-05-25",
+            "supplier": {
+                "id": 2,
+                "name": "Atacado Graos e Verduras"
+            },
+            "unit": "kg",
+            "updated_at": "2026-05-30T07:19:25Z"
+        },
+        {
+            "active": true,
+            "category": {
+                "id": 1,
+                "name": "Proteinas"
+            },
+            "code": "INS-FRANGO",
+            "created_at": "2026-05-30T07:15:55Z",
+            "current_stock": "899.46",
+            "expiration_date": "2026-06-19",
+            "id": 3,
+            "manufacturing_date": "2026-05-28",
+            "minimum_stock": "6.0",
+            "name": "Peito de frango",
+            "notes": "Frango resfriado.",
+            "purchase_price": "16.9",
+            "received_at": "2026-05-28",
+            "supplier": {
+                "id": 1,
+                "name": "Distribuidora Carnes Maringa"
+            },
+            "unit": "kg",
+            "updated_at": "2026-05-30T07:19:25Z"
+        }
+    ],
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total_count": 9,
+        "total_pages": 1
+    }
+}

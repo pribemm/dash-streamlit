@@ -1,0 +1,470 @@
+{
+    "data": [
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18058,
+            "ingredient": {
+                "code": "INS-SALADA",
+                "id": 5,
+                "name": "Mix de salada"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T12:15:00Z",
+            "quantity": "0.08",
+            "reason": "Venda #4435",
+            "source_id": 4435,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18057,
+            "ingredient": {
+                "code": "INS-FRANGO",
+                "id": 3,
+                "name": "Peito de frango"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T12:15:00Z",
+            "quantity": "0.18",
+            "reason": "Venda #4435",
+            "source_id": 4435,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18056,
+            "ingredient": {
+                "code": "INS-FEIJAO",
+                "id": 2,
+                "name": "Feijao carioca"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T12:15:00Z",
+            "quantity": "0.12",
+            "reason": "Venda #4435",
+            "source_id": 4435,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18055,
+            "ingredient": {
+                "code": "INS-ARROZ",
+                "id": 1,
+                "name": "Arroz branco"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T12:15:00Z",
+            "quantity": "0.18",
+            "reason": "Venda #4435",
+            "source_id": 4435,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18054,
+            "ingredient": {
+                "code": "INS-SALADA",
+                "id": 5,
+                "name": "Mix de salada"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T11:30:00Z",
+            "quantity": "0.08",
+            "reason": "Venda #4434",
+            "source_id": 4434,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18053,
+            "ingredient": {
+                "code": "INS-CARNE",
+                "id": 4,
+                "name": "Carne bovina em cubos"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T11:30:00Z",
+            "quantity": "0.18",
+            "reason": "Venda #4434",
+            "source_id": 4434,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18052,
+            "ingredient": {
+                "code": "INS-FEIJAO",
+                "id": 2,
+                "name": "Feijao carioca"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T11:30:00Z",
+            "quantity": "0.12",
+            "reason": "Venda #4434",
+            "source_id": 4434,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18051,
+            "ingredient": {
+                "code": "INS-ARROZ",
+                "id": 1,
+                "name": "Arroz branco"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T11:30:00Z",
+            "quantity": "0.18",
+            "reason": "Venda #4434",
+            "source_id": 4434,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18050,
+            "ingredient": {
+                "code": "INS-SALADA",
+                "id": 5,
+                "name": "Mix de salada"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T11:30:00Z",
+            "quantity": "0.16",
+            "reason": "Venda #4434",
+            "source_id": 4434,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18049,
+            "ingredient": {
+                "code": "INS-FRANGO",
+                "id": 3,
+                "name": "Peito de frango"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T11:30:00Z",
+            "quantity": "0.36",
+            "reason": "Venda #4434",
+            "source_id": 4434,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18048,
+            "ingredient": {
+                "code": "INS-FEIJAO",
+                "id": 2,
+                "name": "Feijao carioca"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T11:30:00Z",
+            "quantity": "0.24",
+            "reason": "Venda #4434",
+            "source_id": 4434,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18047,
+            "ingredient": {
+                "code": "INS-ARROZ",
+                "id": 1,
+                "name": "Arroz branco"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-30T11:30:00Z",
+            "quantity": "0.36",
+            "reason": "Venda #4434",
+            "source_id": 4434,
+            "source_type": "Sale",
+            "unit_cost": null,
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18046,
+            "ingredient": {
+                "code": "INS-SALADA",
+                "id": 5,
+                "name": "Mix de salada"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-29T13:22:00Z",
+            "quantity": "0.08",
+            "reason": "Venda #4433",
+            "source_id": 4433,
+            "source_type": "Sale",
+            "unit_cost": "7.5",
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18045,
+            "ingredient": {
+                "code": "INS-CARNE",
+                "id": 4,
+                "name": "Carne bovina em cubos"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-29T13:22:00Z",
+            "quantity": "0.18",
+            "reason": "Venda #4433",
+            "source_id": 4433,
+            "source_type": "Sale",
+            "unit_cost": "29.9",
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18044,
+            "ingredient": {
+                "code": "INS-FEIJAO",
+                "id": 2,
+                "name": "Feijao carioca"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-29T13:22:00Z",
+            "quantity": "0.12",
+            "reason": "Venda #4433",
+            "source_id": 4433,
+            "source_type": "Sale",
+            "unit_cost": "8.5",
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18043,
+            "ingredient": {
+                "code": "INS-ARROZ",
+                "id": 1,
+                "name": "Arroz branco"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-29T13:22:00Z",
+            "quantity": "0.18",
+            "reason": "Venda #4433",
+            "source_id": 4433,
+            "source_type": "Sale",
+            "unit_cost": "5.9",
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18042,
+            "ingredient": {
+                "code": "INS-SALADA",
+                "id": 5,
+                "name": "Mix de salada"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-29T13:12:00Z",
+            "quantity": "0.16",
+            "reason": "Venda #4432",
+            "source_id": 4432,
+            "source_type": "Sale",
+            "unit_cost": "7.5",
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18041,
+            "ingredient": {
+                "code": "INS-FRANGO",
+                "id": 3,
+                "name": "Peito de frango"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-29T13:12:00Z",
+            "quantity": "0.36",
+            "reason": "Venda #4432",
+            "source_id": 4432,
+            "source_type": "Sale",
+            "unit_cost": "16.9",
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18040,
+            "ingredient": {
+                "code": "INS-FEIJAO",
+                "id": 2,
+                "name": "Feijao carioca"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-29T13:12:00Z",
+            "quantity": "0.24",
+            "reason": "Venda #4432",
+            "source_id": 4432,
+            "source_type": "Sale",
+            "unit_cost": "8.5",
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        },
+        {
+            "created_at": "2026-05-30T07:19:25Z",
+            "id": 18039,
+            "ingredient": {
+                "code": "INS-ARROZ",
+                "id": 1,
+                "name": "Arroz branco"
+            },
+            "movement_type": "sale_consumption",
+            "occurred_at": "2026-05-29T13:12:00Z",
+            "quantity": "0.36",
+            "reason": "Venda #4432",
+            "source_id": 4432,
+            "source_type": "Sale",
+            "unit_cost": "5.9",
+            "updated_at": "2026-05-30T07:19:25Z",
+            "user": {
+                "email": "cashier@example.com",
+                "id": 3,
+                "name": "Caixa SGM",
+                "role": "cashier"
+            }
+        }
+    ],
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total_count": 18058,
+        "total_pages": 903
+    }
+}

@@ -1,0 +1,82 @@
+{
+    "data": [
+        {
+            "active": true,
+            "created_at": "2026-05-30T07:15:56Z",
+            "end_date": "2026-05-31",
+            "id": 1,
+            "menu_items": [
+                {
+                    "available": true,
+                    "effective_price": "24.9",
+                    "id": 1,
+                    "price_override": null,
+                    "product": {
+                        "code": "PROD-MARMITA-FRANGO",
+                        "id": 1,
+                        "name": "Marmita de frango",
+                        "sale_price": "24.9"
+                    }
+                },
+                {
+                    "available": true,
+                    "effective_price": "28.9",
+                    "id": 2,
+                    "price_override": null,
+                    "product": {
+                        "code": "PROD-MARMITA-CARNE",
+                        "id": 2,
+                        "name": "Marmita de carne",
+                        "sale_price": "28.9"
+                    }
+                },
+                {
+                    "available": true,
+                    "effective_price": "27.9",
+                    "id": 3,
+                    "price_override": null,
+                    "product": {
+                        "code": "PROD-MARMITA-FIT",
+                        "id": 3,
+                        "name": "Marmita fit",
+                        "sale_price": "27.9"
+                    }
+                },
+                {
+                    "available": true,
+                    "effective_price": "29.9",
+                    "id": 4,
+                    "price_override": null,
+                    "product": {
+                        "code": "PROD-MARMITA-MASSA",
+                        "id": 4,
+                        "name": "Marmita de massa",
+                        "sale_price": "29.9"
+                    }
+                },
+                {
+                    "available": true,
+                    "effective_price": "30.9",
+                    "id": 5,
+                    "price_override": null,
+                    "product": {
+                        "code": "PROD-MARMITA-LOMBO",
+                        "id": 5,
+                        "name": "Marmita de lombo",
+                        "sale_price": "30.9"
+                    }
+                }
+            ],
+            "name": "Cardapio da Semana",
+            "start_date": "2026-05-25",
+            "status": "active",
+            "updated_at": "2026-05-30T07:15:56Z"
+        }
+    ],
+    "meta": {
+        "page": 1,
+        "per_page": 20,
+        "total_count": 1,
+        "total_pages": 1
+    }
+}
