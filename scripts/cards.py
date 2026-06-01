@@ -1,10 +1,15 @@
-from altair.datasets import data
 import pandas as pd
 import json
 from datetime import datetime, timedelta, timezone
 from collections import defaultdict
 from typing import Dict, List, Tuple, Optional, Union
+from functools import lru_cache
+from typing import Dict, Optional, Union
+import logging
 
+# Configurar logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Faturamento Total
 with open('dados/sales.json') as f:
@@ -18,7 +23,6 @@ with open('dados/products.json') as f:
 
 with open('dados/ingredients.json') as f:
     ingredients_data = json.load(f)
-
 
 def analisar_periodo_completo(
     sales_data: dict,
@@ -42,11 +46,6 @@ def analisar_periodo_completo(
     Returns:
         dict com todas as métricas do período
     """
-    
-    # ==========================================
-    # 1. Preparação e validação dos dados
-    # ==========================================
-    
     # Definir data de referência
     if data_referencia is None:
         data_ref = datetime.now()
@@ -61,11 +60,7 @@ def analisar_periodo_completo(
     
     # Filtrar apenas vendas confirmadas
     vendas = [v for v in sales_data["data"] if v["status"] == "confirmed"]
-    
-    # ==========================================
-    # 2. Calcular custos dos produtos
-    # ==========================================
-    
+        
     precos_ingredientes = {
         "INS-ARROZ": 5.50, "INS-FEIJAO": 6.80, "INS-FRANGO": 12.90,
         "INS-CARNE": 18.50, "INS-SALADA": 4.50, "INS-MACARRAO": 4.20,
@@ -98,10 +93,6 @@ def analisar_periodo_completo(
             'nome_produto': recipe["product"]["name"]
         }
     
-    # ==========================================
-    # 3. Filtrar vendas pelo período
-    # ==========================================
-    
     vendas_periodo = []
     
     for venda in vendas:
@@ -111,10 +102,6 @@ def analisar_periodo_completo(
         
         if _mesmo_periodo_unificado(data_venda, data_ref, periodo):
             vendas_periodo.append(venda)
-    
-    # ==========================================
-    # 4. Calcular métricas consolidadas
-    # ==========================================
     
     # Métricas gerais
     receita_total = sum(float(v["total_amount"]) for v in vendas_periodo)
@@ -150,19 +137,11 @@ def analisar_periodo_completo(
     lucro_total = receita_total - custo_total
     margem_total = (lucro_total / receita_total * 100) if receita_total > 0 else 0
     ticket_medio = receita_total / quantidade_vendas if quantidade_vendas > 0 else 0
-    
-    # ==========================================
-    # 5. Calcular média diária para projeções
-    # ==========================================
-    
+        
     dias_no_periodo = _calcular_dias_no_periodo(data_ref, periodo)
     media_diaria_receita = receita_total / dias_no_periodo if dias_no_periodo > 0 else 0
     media_diaria_vendas = quantidade_vendas / dias_no_periodo if dias_no_periodo > 0 else 0
-    
-    # ==========================================
-    # 6. Montar resultado
-    # ==========================================
-    
+      
     resultado = {
         "periodo": {
             "tipo": periodo,
@@ -263,33 +242,98 @@ def _calcular_dias_no_periodo(data_ref: datetime, periodo: str) -> int:
     
     return 30  # default
 
-
 def get_metricas_periodo(
     sales_data: dict,
     recipe_data: dict, 
     products_data: dict,
-    periodo: str = "mensal"
-) -> Tuple[float, float, float, int, float]:
+    periodo: str = "mensal",
+    incluir_medias: bool = True
+) -> dict:
     """
-    Retorna as principais métricas de forma simples
+    Retorna as principais métricas do período
+    
+    Args:
+        sales_data: dados do sales.json
+        recipe_data: dados do recipe.json
+        products_data: dados do products.json
+        periodo: "diario", "semanal", "mensal", "trimestral", "semestral" ou "anual"
+        incluir_medias: se True, inclui médias diárias
     
     Returns:
-        tuple: (receita, custo, lucro, quantidade_vendas, margem_percentual)
+        dict com todas as métricas
     """
     
     analise = analisar_periodo_completo(sales_data, recipe_data, products_data, periodo)
     
-    return ({'receita':analise['resumo']['receita_total'],
-        'custo': analise['resumo']['custo_total'],
-        'lucro': analise['resumo']['lucro_total'],
-        'qtd': analise['resumo']['quantidade_vendas'],
-        'margem': analise['resumo']['margem_percentual']}
-    )
+    # Métricas básicas
+    receita = float(analise['resumo']['receita_total'])
+    custo = float(analise['resumo']['custo_total'])
+    lucro = float(analise['resumo']['lucro_total'])
+    qtd_vendas = int(analise['resumo']['quantidade_vendas'])
+    qtd_itens = int(analise['resumo']['quantidade_itens_vendidos'])
+    margem = float(analise['resumo']['margem_percentual'])
+    
+    # Métricas derivadas
+    ticket_medio = receita / qtd_vendas if qtd_vendas > 0 else 0.0
+    valor_medio_por_item = receita / qtd_itens if qtd_itens > 0 else 0.0
+    itens_por_venda = qtd_itens / qtd_vendas if qtd_vendas > 0 else 0.0
+    
+    # Métricas diárias
+    dias_no_periodo = analise['periodo']['dias_analisados']
+    faturamento_medio_diario = receita / dias_no_periodo if dias_no_periodo > 0 else 0.0
+    vendas_media_diaria = qtd_vendas / dias_no_periodo if dias_no_periodo > 0 else 0.0
+    
+    resultado = {
+        # Métricas principais
+        'receita': round(receita, 2),
+        'custo': round(custo, 2),
+        'lucro': round(lucro, 2),
+        'qtd_vendas': qtd_vendas,
+        'qtd_itens': qtd_itens,
+        'margem': round(margem, 2),
+        
+        # Métricas de ticket
+        'ticket_medio': round(ticket_medio, 2),
+        'valor_medio_por_item': round(valor_medio_por_item, 2),
+        'itens_por_venda': round(itens_por_venda, 2),
+        
+        # Métricas diárias
+        'faturamento_medio_diario': round(faturamento_medio_diario, 2),
+        'vendas_media_diaria': round(vendas_media_diaria, 2),
+        
+        # Informações do período
+        'periodo_tipo': periodo,
+        'dias_analisados': dias_no_periodo
+    }
+    
+    # Incluir médias diárias do analise (já calculadas pela função original)
+    if incluir_medias:
+        resultado['receita_media_diaria'] = analise['medias_diarias']['receita_media_diaria']
+        resultado['vendas_media_diaria_original'] = analise['medias_diarias']['vendas_media_diaria']
+    
+    return resultado
 
-import json
-from datetime import datetime, timedelta
-from collections import defaultdict
-from typing import Dict, List, Tuple
+# def get_metricas_periodo(
+#     sales_data: dict,
+#     recipe_data: dict, 
+#     products_data: dict,
+#     periodo: str = "mensal"
+# ) -> Dict :
+#     """
+#     Retorna as principais métricas de forma simples
+    
+#     Returns:
+#         tuple: (receita, custo, lucro, quantidade_vendas, margem_percentual)
+#     """
+    
+#     analise = analisar_periodo_completo(sales_data, recipe_data, products_data, periodo)
+    
+#     return ({'receita':analise['resumo']['receita_total'],
+#         'custo': analise['resumo']['custo_total'],
+#         'lucro': analise['resumo']['lucro_total'],
+#         'qtd': analise['resumo']['quantidade_vendas'],
+#         'margem': analise['resumo']['margem_percentual']}
+#     )
 
 def gerar_tabela_estoque(
     ingredients_data: dict,
@@ -644,94 +688,107 @@ def exibir_analise_abc_lucro(df_abc):
 
 # Testes
 
-receita, custo, lucro, qtd_vendas, margem = get_metricas_periodo(
-    sales_data, recipe_data, products_data, "mensal"
-)
-
-# Vendas do anual
-analise_anual= get_metricas_periodo(sales_data, recipe_data, products_data, "anual")
-analise_semestral= get_metricas_periodo(sales_data, recipe_data, products_data, "semestral")
-analise_mensal= get_metricas_periodo(sales_data, recipe_data, products_data, "mensal")
-analise_semanal= get_metricas_periodo(sales_data, recipe_data, products_data, "semanal")
-analise_hoje= get_metricas_periodo(sales_data, recipe_data, products_data, "diario")
-
-receita_anual= analise_anual['receita']
-receita_semestral= analise_semestral['receita']
-receita_mensal= analise_mensal['receita']
-receita_semanal= analise_semanal['receita']
-receita_hoje= analise_hoje['receita']
-
-## Total de vendas realizadas em um período específico.
-qtd_vendas_anual= analise_anual['qtd']
-qtd_vendas_semestral= analise_semestral['qtd']
-qtd_vendas_mensal= analise_mensal['qtd']
-qtd_vendas_semanal= analise_semanal['qtd']
-qtd_vendas_hoje= analise_hoje['qtd']
-
-# Ticket médio
-if qtd_vendas_anual > 0:
-    ticket_medio_anual= receita_anual / qtd_vendas_anual
-else:       
-    ticket_medio_anual= 0
-
-# Lucro Bruto
-lucro_bruto_anual= analise_anual['lucro']
-
-## Porcentagem de margem de lucro bruto em relação ao faturamento total.
-margem_mensal = analise_mensal['margem']
-
-# Receita média diária
-receita_anual/365
-receita_semestral/182 #R$ média com relação ao ano
-receita_mensal/30
-receita_semanal/7 #R$ média com relação ao ano
-
-# Vendas médias diárias
-qtd_vendas_anual/365 #qtd média com relação ao ano
-qtd_vendas_semestral/182 #qtd média com relação ao ano 
-qtd_vendas_mensal/30 #qtd média com relação ao mês
-qtd_vendas_semanal/7 #qtd média com relação à semana
-
-# Ticket médio 
-if receita_anual > 0:
-    ticket_medio_anual= receita_anual / qtd_vendas_anual
-else:
-    ticket_medio_anual= 0
-
-# Receita diária média
-if receita_anual > 0:
-    receita_diaria_media= receita_anual/365
-else:
-    receita_diaria_media= 0
-
-# Dias restantes para esgotar o estoque de um produto específico (Com base na quantidade atual em estoque e na média de vendas diárias.)
-
-tabela = gerar_tabela_estoque(ingredients_data, sales_data, recipe_data, dias_media=30)
-
-# Converter para DataFrame para visualização
-df = pd.DataFrame(tabela)
-filtrado = df.loc[(df['dias_para_vencer'] < 7) | (df['status'] != 'ok'), 
-                  ['code', 'validade', 'dias_para_vencer', 'estoque_atual', 'status', 'dias_restantes_estoque']]
-print(f'Code: {filtrado.iloc[0,0]} - Dias para vencer: {filtrado.iloc[0,2]}')
-
-# ## Quantidade atual em estoque
-# calcular_dias_estoque_restante(sales_data, produto_id, estoque_atual, dias_para_media)['estoque_atual']
+# receita, custo, lucro, qtd_vendas, margem = get_metricas_periodo(
+#     sales_data, recipe_data, products_data, "mensal"
+# )
 
 
-# ## Status do estoque (Crítico, Atenção, OK)
-# calcular_dias_estoque_restante(sales_data, produto_id, estoque_atual, dias_para_media)['status']
 
-# ## Data prevista para esgotamento do estoque
-filtrado_vencimento = df.loc[(df['dias_para_vencer'] < 7), ['code', 'validade', 'dias_para_vencer', 'estoque_atual']]
-print(filtrado_vencimento)
-# calcular_dias_estoque_restante(sales_data, produto_id, estoque_atual, dias_para_media)['data_previsao_esgotamento']
-filtrado_duracao_estoque = df.loc[(df['status'] != 'ok'),
-                  ['code', 'dias_para_vencer', 'estoque_atual', 'dias_restantes_estoque', 'status']]
-print(filtrado_duracao_estoque)
-# Previsão de vendas para o próximo mês com base em tendências anteriores (fazer para os próximos 3 meses).
+# analise = analisar_periodo_completo(sales_data, recipe_data, products_data, periodo)
 
-# Análise ABC dos produtos (Classificação dos produtos com base em sua contribuição para o faturamento total, onde A representa os produtos mais lucrativos, B os intermediários e C os menos lucrativos.) 
-df_abc_lucro = analise_abc_por_lucro(sales_data, recipe_data, products_data, ingredients_data)
-print(df_abc_lucro)
+# receita_semestral= analise_semestral['receita']
+# receita_mensal= analise_mensal['receita']
+# receita_semanal= analise_semanal['receita']
+# receita_hoje= analise_hoje['receita']
+
+# # Vendas do anual
+
+# analise_anual= get_metricas_periodo(sales_data, recipe_data, products_data, "anual")
+# analise_semestral= get_metricas_periodo(sales_data, recipe_data, products_data, "semestral")
+# analise_mensal= get_metricas_periodo(sales_data, recipe_data, products_data, "mensal")
+# analise_semanal= get_metricas_periodo(sales_data, recipe_data, products_data, "semanal")
+# analise_hoje= get_metricas_periodo(sales_data, recipe_data, products_data, "diario")
+
+
+
+# ## Total de vendas realizadas em um período específico.
+# qtd_vendas_anual= analise_anual['qtd']
+# qtd_vendas_semestral= analise_semestral['qtd']
+# qtd_vendas_mensal= analise_mensal['qtd']
+# qtd_vendas_semanal= analise_semanal['qtd']
+# qtd_vendas_hoje= analise_hoje['qtd']
+
+# # Ticket médio
+# if qtd_vendas_anual > 0:
+#     ticket_medio_anual= receita_anual / qtd_vendas_anual
+# else:       
+#     ticket_medio_anual= 0
+
+# # Lucro Bruto
+# lucro_bruto_anual= analise_anual['lucro']
+
+# ## Porcentagem de margem de lucro bruto em relação ao faturamento total.
+# margem_mensal = analise_mensal['margem']
+
+# # Receita média diária
+# receita_anual/365
+# receita_semestral/182 #R$ média com relação ao ano
+# receita_mensal/30
+# receita_semanal/7 #R$ média com relação ao ano
+
+# # Vendas médias diárias
+# qtd_vendas_anual/365 #qtd média com relação ao ano
+# qtd_vendas_semestral/182 #qtd média com relação ao ano 
+# qtd_vendas_mensal/30 #qtd média com relação ao mês
+# qtd_vendas_semanal/7 #qtd média com relação à semana
+
+# # Ticket médio 
+# if receita_anual > 0:
+#     ticket_medio_anual= receita_anual / qtd_vendas_anual
+# else:
+#     ticket_medio_anual= 0
+
+# # Receita diária média
+# if receita_anual > 0:
+#     receita_diaria_media= receita_anual/365
+# else:
+#     receita_diaria_media= 0
+
+# # Dias restantes para esgotar o estoque de um produto específico (Com base na quantidade atual em estoque e na média de vendas diárias.)
+
+# tabela = gerar_tabela_estoque(ingredients_data, sales_data, recipe_data, dias_media=30)
+
+# # Converter para DataFrame para visualização
+# df = pd.DataFrame(tabela)
+# filtrado = df.loc[(df['dias_para_vencer'] < 7) | (df['status'] != 'ok'), 
+#                   ['code', 'validade', 'dias_para_vencer', 'estoque_atual', 'status', 'dias_restantes_estoque']]
+# print(f'Code: {filtrado.iloc[0,0]} - Dias para vencer: {filtrado.iloc[0,2]}')
+
+# # ## Quantidade atual em estoque
+# # calcular_dias_estoque_restante(sales_data, produto_id, estoque_atual, dias_para_media)['estoque_atual']
+
+
+# # ## Status do estoque (Crítico, Atenção, OK)
+# # calcular_dias_estoque_restante(sales_data, produto_id, estoque_atual, dias_para_media)['status']
+
+# # ## Data prevista para esgotamento do estoque
+# filtrado_vencimento = df.loc[(df['dias_para_vencer'] < 7), ['code', 'validade', 'dias_para_vencer', 'estoque_atual']]
+# print(filtrado_vencimento)
+# # calcular_dias_estoque_restante(sales_data, produto_id, estoque_atual, dias_para_media)['data_previsao_esgotamento']
+# filtrado_duracao_estoque = df.loc[(df['status'] != 'ok'),
+#                   ['code', 'dias_para_vencer', 'estoque_atual', 'dias_restantes_estoque', 'status']]
+# print(filtrado_duracao_estoque)
+# # Previsão de vendas para o próximo mês com base em tendências anteriores (fazer para os próximos 3 meses).
+
+# # Análise ABC dos produtos (Classificação dos produtos com base em sua contribuição para o faturamento total, onde A representa os produtos mais lucrativos, B os intermediários e C os menos lucrativos.) 
+# df_abc_lucro = analise_abc_por_lucro(sales_data, recipe_data, products_data, ingredients_data)
+# print(df_abc_lucro)
 
 # exibir_analise_abc_lucro(df_abc_lucro)
+
+if __name__ == "__main__":
+    try:
+        receita = get_metricas_periodo(sales_data, recipe_data, products_data, "anual")
+        print(receita)
+    except Exception as e:
+        print(f"Erro no teste: {e}")

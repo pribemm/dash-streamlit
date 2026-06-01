@@ -355,3 +355,175 @@ fig1 = gerar_grafico_previsao(
     salvar_imagem="previsao_vendas.png",
     mostrar_grafico=True
 )
+
+def get_dados_agregados_periodo(
+    sales_data: dict,
+    recipe_data: dict,
+    products_data: dict,
+    periodo: str = "mensal"
+) -> dict:
+    """
+    Retorna dados agregados para gráficos conforme o período
+    
+    Args:
+        sales_data: dados do sales.json
+        recipe_data: dados do recipe.json
+        products_data: dados do products.json
+        periodo: "diario", "semanal", "mensal", "trimestral", "semestral" ou "anual"
+    
+    Returns:
+        dict com dados agregados para gráficos
+    """
+    
+    # Filtrar vendas confirmadas
+    vendas = [v for v in sales_data["data"] if v["status"] == "confirmed"]
+    
+    # Definir granularidade baseada no período selecionado
+    if periodo in ["anual", "semestral"]:
+        granularidade = "mensal"
+    elif periodo == "trimestral":
+        granularidade = "semanal"
+    else:  # mensal, semanal, diario
+        granularidade = "diario"
+    
+    # Dicionários para acumular dados
+    dados_agregados = defaultdict(lambda: {
+        'quantidade_itens': 0,
+        'faturamento': 0.0,
+        'quantidade_vendas': 0
+    })
+    
+    # Processar cada venda
+    for venda in vendas:
+        # Converter data
+        data_str = venda["sold_at"]
+        if 'Z' in data_str:
+            data_str = data_str.replace('Z', '+00:00')
+        data_venda = datetime.fromisoformat(data_str)
+        if data_venda.tzinfo is not None:
+            data_venda = data_venda.replace(tzinfo=None)
+        
+        # Determinar a chave de agregação conforme granularidade
+        if granularidade == "mensal":
+            chave = data_venda.strftime("%Y-%m")
+            rotulo = data_venda.strftime("%b/%Y")
+        elif granularidade == "semanal":
+            ano, semana, _ = data_venda.isocalendar()
+            chave = f"{ano}-S{semana:02d}"
+            rotulo = f"Sem {semana}"
+        else:  # diario
+            chave = data_venda.strftime("%Y-%m-%d")
+            rotulo = data_venda.strftime("%d/%m")
+        
+        # Calcular quantidade de itens e faturamento
+        qtd_itens_venda = sum(item["quantity"] for item in venda["sale_items"])
+        faturamento_venda = float(venda["total_amount"])
+        
+        # Acumular dados
+        dados_agregados[chave]['quantidade_itens'] += qtd_itens_venda
+        dados_agregados[chave]['faturamento'] += faturamento_venda
+        dados_agregados[chave]['quantidade_vendas'] += 1
+        dados_agregados[chave]['rotulo'] = rotulo
+    
+    # Ordenar por data
+    dados_ordenados = dict(sorted(dados_agregados.items()))
+    
+    # Preparar dados para retorno
+    resultado = {
+        'granularidade': granularidade,
+        'datas': list(dados_ordenados.keys()),
+        'rotulos': [dados_ordenados[chave]['rotulo'] for chave in dados_ordenados],
+        'quantidade_itens': [dados_ordenados[chave]['quantidade_itens'] for chave in dados_ordenados],
+        'faturamento': [dados_ordenados[chave]['faturamento'] for chave in dados_ordenados],
+        'quantidade_vendas': [dados_ordenados[chave]['quantidade_vendas'] for chave in dados_ordenados]
+    }
+    
+    return resultado
+
+def get_top_produtos_mais_vendidos(
+    sales_data: dict,
+    recipe_data: dict,
+    products_data: dict,
+    periodo: str = "mensal",
+    top_n: int = 5
+) -> dict:
+    """
+    Retorna os top N produtos mais vendidos com seus faturamentos
+    
+    Args:
+        sales_data: dados do sales.json
+        recipe_data: dados do recipe.json (não usado diretamente, mantido para consistência)
+        products_data: dados do products.json
+        periodo: "diario", "semanal", "mensal", "trimestral", "semestral" ou "anual"
+        top_n: número de produtos a retornar (padrão: 5)
+    
+    Returns:
+        dict com listas de produtos, quantidades e faturamentos
+    """
+    from datetime import datetime
+    from collections import defaultdict
+    
+    # Definir data de referência
+    data_ref = datetime.now()
+    if data_ref.tzinfo is not None:
+        data_ref = data_ref.replace(tzinfo=None)
+    
+    # Filtrar vendas confirmadas
+    vendas = [v for v in sales_data["data"] if v["status"] == "confirmed"]
+    
+    # Filtrar vendas pelo período
+    vendas_periodo = []
+    for venda in vendas:
+        data_venda = datetime.fromisoformat(venda["sold_at"].replace('Z', '+00:00'))
+        if data_venda.tzinfo is not None:
+            data_venda = data_venda.replace(tzinfo=None)
+        
+        # Usar a função de comparação existente
+        from scripts.cards import _mesmo_periodo_unificado
+        if _mesmo_periodo_unificado(data_venda, data_ref, periodo):
+            vendas_periodo.append(venda)
+    
+    # Dicionário para acumular dados por produto
+    produtos_data = defaultdict(lambda: {
+        'quantidade': 0,
+        'faturamento': 0.0,
+        'nome': ''
+    })
+    
+    # Processar cada venda
+    for venda in vendas_periodo:
+        for item in venda["sale_items"]:
+            product_id = item["product"]["id"]
+            product_name = item["product"]["name"]
+            quantidade = item["quantity"]
+            faturamento_item = float(item["total_price"])
+            
+            produtos_data[product_id]['quantidade'] += quantidade
+            produtos_data[product_id]['faturamento'] += faturamento_item
+            produtos_data[product_id]['nome'] = product_name
+    
+   
+    lista_produtos = []
+    for product_id, dados in produtos_data.items():
+        lista_produtos.append({
+            'id': product_id,
+            'nome': dados['nome'],
+            'quantidade': dados['quantidade'],
+            'faturamento': dados['faturamento']
+        })
+    
+    # Ordenar por quantidade (mais vendidos primeiro)
+    lista_produtos.sort(key=lambda x: x['quantidade'], reverse=False)
+    
+    # Pegar os top N
+    top_produtos = lista_produtos[:top_n]
+    
+    # Preparar resultado para gráfico
+    resultado = {
+        'produtos': [p['nome'] for p in top_produtos],
+        'quantidades': [p['quantidade'] for p in top_produtos],
+        'faturamentos': [p['faturamento'] for p in top_produtos],
+        'cores': ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe'][:top_n]
+    }
+    
+    return resultado

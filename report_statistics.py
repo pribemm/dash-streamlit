@@ -1,24 +1,16 @@
-# streamlit run dash.py
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
-from scripts.geracao_dados import gerar_grafico_mensal,gerar_grafico_semanal, carregar_dados_pedido
-# =========================================================
-# 2. Dados
-# =========================================================
-
+from scripts.cards import calcular_dias_estoque_restante, analise_abc_por_lucro, exibir_analise_abc_lucro
 
 faturamento_total =65.00
-vendas_periodo = 321
+# vendas_periodo = 321
 ticket_medio = 25.32
 lucro_bruto = 4441.09
 margem_lucro = 60.3
 vendas_medias_diarias = 41
 
-
-# =========================================================
-# 2. CONFIGURAÇÃO ESTÉTICA GLOBAL
-# =========================================================
+# estética do dashboard
 
 st.html(
     """
@@ -83,12 +75,10 @@ st.html(
 )
 
 # Cabeçalho
-st.title("Visão Geral")
+st.title("Dados Estatísticos")
 
-# ==========================================
-# PRIMEIRA LINHA COM OS QUATRO CARTÕES
-# ==========================================
-card_11, card_12, card_13, card_14 = st.columns(4, gap="small")
+# Primeira linha de cards
+card_11, card_12, card_13 = st.columns(3, gap="small")
 
 with card_11:
     st.html(
@@ -96,7 +86,7 @@ with card_11:
         <div class="meu-card-customizado">
             <div class="card-icone-espaco"></div>
             <div class="card-conteudo-texto">
-                <div class="card-titulo">Faturamento Total</div>
+                <div class="card-titulo">Receita Mensal</div>
                 <div class="card-valor">""" + "R$ " + str(faturamento_total) + """</div>
                 <div class="card-delta">""" + str(vendas_periodo) + """ vendas no período</div>
             </div>
@@ -110,7 +100,7 @@ with card_12:
         <div class="meu-card-customizado">
             <div class="card-icone-espaco"></div>
             <div class="card-conteudo-texto">
-                <div class="card-titulo">Ticket Médio</div>
+                <div class="card-titulo">Receita Semanal Média no Período</div>
                 <div class="card-valor">""" + "R$ " + str(ticket_medio) + """</div>
                 <div class="card-delta">Valor médio por venda</div>
             </div>
@@ -124,7 +114,7 @@ with card_13:
         <div class="meu-card-customizado">
             <div class="card-icone-espaco"></div>
             <div class="card-conteudo-texto">
-                <div class="card-titulo">Lucro Bruto</div>
+                <div class="card-titulo">Receita Diária Média no Período</div>
                 <div class="card-valor">R$ 4.441,09</div>
                 <div class="card-delta">60,3% de margem</div>
             </div>
@@ -132,43 +122,4 @@ with card_13:
         """
     )
 
-with card_14:
-    st.html(
-        """
-        <div class="meu-card-customizado">
-            <div class="card-icone-espaco"></div>
-            <div class="card-conteudo-texto">
-                <div class="card-titulo">Vendas médias diárias</div>
-                <div class="card-valor">41</div>
-                <div class="card-delta">3690 vendas no período</div>
-            </div>
-        </div>
-        """
-    )
-
 st.markdown("---")
-
-card_21, card_22 = st.columns(2)
-
-with card_21:
-    with st.container(border=True):
-        st.write("### Evolução Semanal")
-        
-        # 1. Chama a função do outro script que gera o gráfico
-        df_pedido = carregar_dados_pedido()  # Certifique-se de que essa função retorna o DataFrame necessário para gerar o gráfico
-        figura_semanal = gerar_grafico_semanal(df_pedido)
-        
-        # 2. Exibe a figura gerada dentro do container do Streamlit
-        st.pyplot(figura_semanal)
-
-with card_22:
-    with st.container(border=True):
-        st.write("### Evolução Mensal")
-        
-        # 1. Chama a função do outro script que gera o gráfico
-        figura_mensal = gerar_grafico_mensal()
-        
-        # 2. Exibe a figura gerada dentro do container do Streamlit
-        st.pyplot(figura_mensal)
-
-# Terceira linha de graficos
