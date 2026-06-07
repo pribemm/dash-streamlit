@@ -295,11 +295,152 @@ def grafico_barras_horizontais(
             <div class="bar-value">{valor_fmt}</div>
         </div> """, unsafe_allow_html=True)
 
-ranking_margem_lucro = get_margem_lucro_produtos()
-grafico_barras_horizontais(df=ranking_margem_lucro,
-            col_nome='name_product',
-            col_valor='margem_percentual',
-            col_texto='total_lucro',
-            top_n = 5,
-            formato_valor = "moeda"  # "moeda", "percentual" ou "numero"
-        )
+# ==========================================
+# NOVAS MÉTRICAS DE NEGÓCIO
+# ==========================================
+
+def get_dados_vendas_filtrados(start_date: datetime = None, end_date: datetime = None) -> pd.DataFrame:
+    """Função auxiliar para unificar e filtrar as vendas no período."""
+    sales = carregar_tabela('sales')
+    sale_items = carregar_tabela('sale_items')
+    
+    # Merge para associar os itens aos dados gerais da venda (como data e total)
+    df = pd.merge(sale_items, sales, left_on='sale_id', right_on='id', suffixes=('_item', '_sale'))
+    df['sold_at'] = pd.to_datetime(df['sold_at'])
+    
+    if start_date and end_date:
+        df = df[(df['sold_at'] >= start_date) & (df['sold_at'] <= end_date)]
+        
+    return df
+
+
+def get_faturamento_total(start_date: datetime = None, end_date: datetime = None) -> float:
+    """Calcula o Faturamento Total (Soma do valor total de todas as vendas do período)."""
+    sales = carregar_tabela('sales')
+    sales['sold_at'] = pd.to_datetime(sales['sold_at'])
+    
+    if start_date and end_date:
+        sales = sales[(sales['sold_at'] >= start_date) & (sales['sold_at'] <= end_date)]
+        
+    return float(sales['total_amount'].sum())
+
+
+def get_total_vendas(start_date: datetime = None, end_date: datetime = None) -> int:
+    """Calcula a quantidade total de pedidos/vendas realizadas no período."""
+    sales = carregar_tabela('sale_items')
+    sales['created_at'] = pd.to_datetime(sales['created_at'])
+    
+    if start_date and end_date:
+        sales = sales[(sales['created_at'] >= start_date) & (sales['created_at'] <= end_date)]
+        
+    return int(sales.shape[0])
+
+
+def get_ticket_medio(start_date: datetime = None, end_date: datetime = None) -> float:
+    """Calcula o Ticket Médio (Faturamento Total / Total de Vendas)."""
+    faturamento = get_faturamento_total(start_date, end_date)
+    total_vendas = get_total_vendas(start_date, end_date)
+    
+    if total_vendas == 0:
+        return 0.0
+        
+    return faturamento / total_vendas
+
+
+def get_lucro_total(start_date: datetime = None, end_date: datetime = None) -> float:
+    """Calcula o Lucro Bruto Total do período baseado nos custos de receita."""
+    # Reaproveita a lógica que você já criou na sua função original
+    margem_df = get_margem_lucro_produtos(start_date, end_date)
+    
+    if margem_df.empty:
+        return 0.0
+        
+    return float(margem_df['total_lucro'].sum())
+
+
+def get_margem_lucro_geral(start_date: datetime = None, end_date: datetime = None) -> float:
+    """Calcula a Margem de Lucro Geral em % do período (Lucro Total / Faturamento Total * 100)."""
+    faturamento = get_faturamento_total(start_date, end_date)
+    lucro = get_lucro_total(start_date, end_date)
+    
+    if faturamento == 0:
+        return 0.0
+        
+    return (lucro / faturamento) * 100
+
+
+def get_vendas_medias_diarias(start_date: datetime = None, end_date: datetime = None) -> float:
+    """Calcula o volume médio de faturamento por dia com base nos dias que tiveram vendas."""
+    sales = carregar_tabela('sale_items')
+    sales['created_at'] = pd.to_datetime(sales['created_at'])
+    
+    if start_date and end_date:
+        sales = sales[(sales['created_at'] >= start_date) & (sales['created_at'] <= end_date)]
+        
+    if sales.empty:
+        return 0.0
+        
+    # Agrupa por dia (apenas a data, desconsiderando a hora) e soma o faturamento
+    faturamento_por_dia = sales.groupby(sales['created_at'].dt.date)['total_price'].sum()
+    
+    return float(faturamento_por_dia.mean())
+
+def get_faturamento_por_produto(start_date: datetime = None, end_date: datetime = None) -> pd.DataFrame:
+    """
+    Gera um DataFrame onde cada linha é um produto contendo:
+    Categoria, Quantidade Vendida, Faturamento e % do Faturamento Total no período.
+    """
+    # 1. Carregar as tabelas necessárias utilizando sua função nativa
+    sales = carregar_tabela('sales')
+    sale_items = carregar_tabela('sale_items')
+    products = carregar_tabela('products')
+    categories = carregar_tabela('categories')
+
+    # 2. Corrigir tipo de data e aplicar o filtro de período nas vendas
+    sales['sold_at'] = pd.to_datetime(sales['sold_at'])
+    if start_date and end_date:
+        sales = sales[(sales['sold_at'] >= start_date) & (sales['sold_at'] <= end_date)]
+
+    # Se não houver vendas no período, retorna um DataFrame vazio com as colunas certas
+    if sales.empty:
+        return pd.DataFrame(columns=['Produto', 'Categoria', 'Quantidade Vendida', 'Faturamento', '% do faturamento total'])
+
+    # 3. Cruzar as tabelas (sales -> sale_items -> products -> categories)
+    df = pd.merge(sale_items, sales, left_on='sale_id', right_on='id', suffixes=('_item', '_sale'))
+    df = pd.merge(df, products, left_on='product_id', right_on='id', suffixes=('_sale', '_product'))
+    df = pd.merge(df, categories, left_on='category_id', right_on='id', suffixes=('_product', '_category'))
+
+    # 4. Agrupar por Produto e Categoria
+    # Nota: Usamos 'total_price' dos itens de venda para calcular o faturamento do produto
+    df_agrupado = df.groupby(['name_product', 'name_category']).agg(
+        quantidade_vendida=('quantity', 'sum'),
+        faturamento=('total_price', 'sum')
+    ).reset_index()
+
+    # 5. Calcular o % do faturamento total baseado no faturamento do período filtrado
+    faturamento_total_periodo = df_agrupado['faturamento'].sum()
+    
+    if faturamento_total_periodo > 0:
+        df_agrupado['pct_faturamento'] = (df_agrupado['faturamento'] / faturamento_total_periodo) * 100
+    else:
+        df_agrupado['pct_faturamento'] = 0.0
+
+    # 6. Renomear e ordenar as colunas conforme solicitado
+    df_final = df_agrupado.rename(columns={
+        'name_product': 'Produto',
+        'name_category': 'Categoria',
+        'quantidade_vendida': 'Quantidade Vendida',
+        'faturamento': 'Faturamento',
+        'pct_faturamento': '% do faturamento total'
+    })
+
+    df_final = df_final.sort_values(by='Faturamento', ascending=False).reset_index(drop=True)
+    
+    df_final['Faturamento'] = df_final['Faturamento'].apply(
+        lambda x: f"R$ {x:.2f}".replace('.', ',')
+    )
+    
+    df_final['% do faturamento total'] = df_final['% do faturamento total'].apply(
+        lambda x: f"{x:.2f}%".replace('.', ',')
+    )
+    return df_final

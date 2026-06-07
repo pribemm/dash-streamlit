@@ -1,7 +1,10 @@
 from datetime import datetime, timedelta
 from tracemalloc import start
-from turtle import pd
-from dateutil.relativedelta import relativedelta 
+from turtle import pd as pd_turtle
+import pandas as pd
+import streamlit as st
+from dateutil.relativedelta import relativedelta
+from scripts.utils import exibir_dataframe
 
 import streamlit as st
 
@@ -31,7 +34,6 @@ def periodo(title):
         start_date = today - timedelta(weeks=1)
         end_date = today
     elif periodo_selecionado == "Mensal":
-        # Usando relativedelta para meses precisos
         start_date = today - relativedelta(months=1)
         end_date = today
     elif periodo_selecionado == "Trimestral":
@@ -44,7 +46,7 @@ def periodo(title):
         start_date = today - relativedelta(years=1)
         end_date = today
     elif periodo_selecionado == "Personalizado":
-        # Usando colunas normais em vez de sidebar
+        
         col1, col2 = st.columns(2)
         
         with col1:
@@ -62,11 +64,8 @@ def periodo(title):
                 key="end_date"
             )
         
-        # Validar datas
         if start_date > end_date:
             st.error("A data inicial deve ser anterior à data final!")
-            # Inverter as datas ou manter como estão?
-            start_date, end_date = end_date, start_date
         
         # Converter para datetime
         start_date = datetime.combine(start_date, datetime.min.time())
@@ -137,70 +136,357 @@ def cards_grid(lista, n_colunas=4):
                 else:
                     st.empty()
 
-# st.markdown("""
-# <style>
+def rodape():
+    st.markdown(f"""
+    <div class="custom-footer">
+        Última atualização: {datetime.now().strftime('%d/%m/%Y às %H:%M')}
+    </div>
+    """, unsafe_allow_html=True)
 
-# .card {
-#     background: white;
-#     padding: 16px;
-#     border-radius: 10px;
-#     border: 1px solid #eee;
+def layout():
+    st.markdown("""
+    <style>
+        /* Fundo geral */
+        .stApp {
+            background-color: #f5f7fb;
+        }
 
-#     height: 120px;
+        /* Container principal */
+        .block-container {
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+            padding-left: 3rem;
+            padding-right: 3rem;
+            max-width: 1450px;
+        }
 
-#     display: flex;
-#     flex-direction: column;
-#     justify-content: space-between;
+        /* Header padrão transparente */
+        header[data-testid="stHeader"] {
+            background-color: transparent;
+        }
 
-#     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-#     transition: 0.2s;
-# }
+        /* Remove menu e rodapé padrão */
+        #MainMenu {
+            visibility: hidden;
+        }
 
-# .card:hover {
-#     transform: translateY(-3px);
-#     box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-# }
+        footer {
+            visibility: hidden;
+        }
 
-# .card-title {
-#     font-size: 13px;
-#     color: #6b7280;
-# }
+        /* Cabeçalho do dashboard */
+        .dashboard-header {
+            background: linear-gradient(135deg, #ffffff 0%, #eef4ff 100%);
+            border: 1px solid #dbe5f5;
+            border-radius: 18px;
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 6px 18px rgba(31, 41, 55, 0.06);
+        }
 
-# .card-main {
-#     display: flex;
-#     align-items: baseline;
-#     gap: 6px;
-# }
+        .dashboard-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin: 0;
+            line-height: 1.2;
+        }
 
-# .card-value {
-#     font-size: 26px;
-#     font-weight: bold;
-#     color: #111827;
-# }
+        .dashboard-subtitle {
+            font-size: 0.95rem;
+            color: #6b7280;
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
 
-# .card-unit {
-#     font-size: 12px;
-#     color: #6b7280;
-# }
+        /* Subtítulos dentro dos containers */
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
 
-# .card-footer {
-#     font-size: 12px;
-#     color: #6b7280;
-# }
+        .section-description {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 18px;
+        }
 
-# </style>
-# """, unsafe_allow_html=True)
+        /* KPI customizado */
+        .kpi-box {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 8px 4px 4px 4px;
+        }
 
+        .kpi-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
 
-# produtos = [
-#     ("Arroz", "Kg", 13, 49),
-#     ("Feijão", "Kg", 1, 4),
-#     ("Filé de frango", "Kg", 10, 20),
-#     ("Refrigerante", "Uni.", 11, 490),
-#     ("Macarrão", "Kg", 5, 30),
-#     ("Carne", "Kg", 8, 120),
-#     ("Leite", "Uni.", 20, 100),
-#     ("Suco", "Uni.", 15, 75),
-# ]
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #111827;
+            margin-bottom: 4px;
+        }
 
-# cards_grid(produtos)
+        .kpi-positive {
+            color: #059669;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .kpi-negative {
+            color: #dc2626;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .kpi-neutral {
+            color: #2563eb;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        /* Dataframes */
+        [data-testid="stDataFrame"] {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        /* Espaçamento dos containers com borda */
+        [data-testid="stVerticalBlockBorderWrapper"] {
+            background-color: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 14px rgba(31, 41, 55, 0.04);
+        }
+
+        /* Linha divisória discreta */
+        .soft-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d1d5db, transparent);
+            margin: 28px 0;
+        }
+
+        /* Rodapé customizado */
+        .custom-footer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.85rem;
+            margin-top: 26px;
+            padding-top: 12px;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+def cabecalho(title, subtitle):
+    st.markdown(f"""
+    <div class="dashboard-header">
+        <p class="dashboard-title">📊 {title}</p>
+        <p class="dashboard-subtitle">
+            {subtitle}
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+def kpi_card(
+    titulo: str,
+    valor,
+    sufixo: str = "",
+    classe_status: str = "",
+    texto_status: str = "",
+    formato: str = "decimal"  # "numero", "percentual", "moeda"
+):
+    """
+    Componente de KPI reutilizável
+
+    Parâmetros:
+    - titulo: nome do KPI
+    - valor: valor numérico
+    - sufixo: ex "%", "R$", etc
+    - classe_status: classe CSS (ex: sucesso, alerta, negativo)
+    - texto_status: texto abaixo do valor
+    - formato: "decimal", "percentual", "moeda", "inteiro"
+    """
+
+    if formato == "percentual":
+        valor_fmt = f"{valor:.2f}%".replace(".", ",")
+    elif formato == "moeda":
+        valor_fmt = f"R$ {valor:,.2f}".replace(".", ",")
+    elif formato == "decimal":
+        valor_fmt = f"{valor:.2f}"
+    elif formato == "unidade":
+        valor_fmt = f"{valor} un."
+    else:
+        valor_fmt = f"{valor}"
+
+    with st.container(border=True):
+        st.markdown(f"""
+        <div class="kpi-box">
+            <div class="kpi-label">{titulo}</div>
+            <div class="kpi-value">{valor_fmt}{sufixo}</div>
+            <div class="{classe_status}">{texto_status}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+def divisor():
+    st.markdown("""
+    <div class="soft-divider"></div>
+    """, unsafe_allow_html=True)
+
+def secao_container(
+    titulo: str,
+    descricao: str = "",
+    conteudo=None,
+    altura_tabela: int = 250,
+    mensagem_vazio: str = "Nenhum dado disponível.",
+    icone: str = "📊"
+):
+    """
+    Componente de seção padronizada
+
+    Parâmetros:
+    - titulo: título da seção
+    - descricao: texto descritivo
+    - conteudo: dataframe ou qualquer render
+    - altura_tabela: altura da tabela
+    - mensagem_vazio: fallback
+    - icone: emoji opcional
+    """
+
+    with st.container(border=True):
+        st.markdown(f"""
+        <div class="section-title">{icone} {titulo}</div>
+        <div class="section-description">{descricao}</div>
+        """, unsafe_allow_html=True)
+
+        if conteudo is None:
+            st.info(mensagem_vazio)
+
+        elif hasattr(conteudo, "empty"):
+            if not conteudo.empty:
+                exibir_dataframe(conteudo, altura=altura_tabela)
+            else:
+                st.info(mensagem_vazio)
+
+        else:
+            conteudo()
+
+def secao_ranking_barras(
+    df: pd.DataFrame,
+    col_nome: str,
+    col_valor: str,
+    col_texto_barra: str,
+    titulo: str = "Ranking",
+    descricao: str = "",
+    top_n: int = 5,
+    prefixo_valor: str = "R$",
+    mensagem_vazio: str = "Nenhum dado disponível.",
+):
+    """
+    Componente de ranking com barras horizontais
+
+    Parâmetros:
+    - df: dataframe base
+    - col_nome: coluna exibida à esquerda (label)
+    - col_valor: coluna usada para tamanho da barra
+    - col_texto_barra: texto dentro da barra
+    - titulo: título da seção
+    - descricao: descrição
+    - top_n: quantidade de itens
+    - prefixo_valor: prefixo monetário
+    """
+
+    with st.container(border=True):
+
+        st.markdown(f"""
+        <div class="section-title">{titulo}</div>
+        <div class="section-description">{descricao}</div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <style>
+        .bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .bar-label {
+            width: 180px;
+            font-size: 13px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bar-container {
+            flex: 1;
+            background-color: #e5e7eb;
+            border-radius: 20px;
+            height: 22px;
+            margin: 0 12px;
+            overflow: hidden;
+        }
+        .bar-fill {
+            background-color: #111;
+            height: 100%;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+            min-width: 30px;
+        }
+        .bar-value {
+            width: 100px;
+            text-align: right;
+            font-size: 12px;
+            color: #555;
+            white-space: nowrap;
+        }
+        </style>
+        """, unsafe_allow_html=True)
+
+        if df is None or df.empty:
+            st.info(mensagem_vazio)
+            return
+
+        df_plot = df.copy()
+
+        # garantir numérico
+        df_plot[col_valor] = pd.to_numeric(df_plot[col_valor], errors='coerce').fillna(0)
+        df_plot[col_texto_barra] = pd.to_numeric(df_plot[col_texto_barra], errors='coerce').fillna(0)
+
+        # ordenar + top N
+        df_plot = df_plot.sort_values(by=col_valor, ascending=False).head(top_n)
+
+        max_valor = df_plot[col_valor].max()
+
+        for _, row in df_plot.iterrows():
+
+            nome = row[col_nome]
+            valor = row[col_valor]
+            texto_barra = int(row[col_texto_barra])
+
+            percentual = (valor / max_valor * 100) if max_valor > 0 else 0
+            valor_formatado = f"{prefixo_valor}{valor:,.2f}"
+
+            st.markdown(f"""
+            <div class="bar-row">
+                <div class="bar-label">{nome}</div>
+                <div class="bar-container">
+                    <div class="bar-fill" style="width: {percentual:.1f}%;">
+                        {texto_barra}
+                    </div>
+                </div>
+                <div class="bar-value">{valor_formatado}</div>
+            </div>
+            """, unsafe_allow_html=True)

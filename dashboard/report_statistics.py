@@ -1,125 +1,128 @@
-import pandas as pd
-import matplotlib.pyplot as plt
 import streamlit as st
-from scripts.cards import calcular_dias_estoque_restante, analise_abc_por_lucro, exibir_analise_abc_lucro
+import pandas as pd
+from datetime import datetime
+import sys
+import os
 
-faturamento_total =65.00
-# vendas_periodo = 321
-ticket_medio = 25.32
-lucro_bruto = 4441.09
-margem_lucro = 60.3
-vendas_medias_diarias = 41
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
+sys.path.append(parent_dir)
 
-# estética do dashboard
-
-st.html(
-    """
-    <style>
-    /* Estilo do Card Principal */
-    .meu-card-customizado {
-        background-color: #ffffff;
-        border: 1.5px solid #a3a3a3;      /* Borda fina cinza escuro conforme o print */
-        border-radius: 16px;             /* Cantos bem arredondados */
-        padding: 12px 8px;              /* Espaçamento interno generoso */
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        display: flex;                   /* Alinha o ícone e os textos lado a lado */
-        align-items: center;             /* Centraliza verticalmente o ícone com o bloco de texto */
-        gap: 8px;                       /* Espaço entre o quadrado do ícone e o texto */
-        min-height: 90px;               /* Garante que todos os cards tenham a mesma altura */
-        width: 100%;                    /* Faz o card ocupar toda a largura da coluna */}
-        box-sizing: border-box;           /* Inclui a borda e o padding no cálculo da largura total */
-    }
-    
-    /* O Quadrado do Ícone (Placeholder) */
-    .card-icone-espaco {
-        width: 25px;
-        height: 25px;
-        border: 0.5px solid #a3a3a3;
-        border-radius: 10px;             /* Cantos do ícone levemente arredondados */
-        flex-shrink: 0;                  /* Impede o quadrado de esmagar se faltar espaço */
-    }
-    
-    /* Bloco que segura os textos */
-    .card-conteudo-texto {
-        display: flex;
-        flex-direction: column;          /* Empilha Título, Valor e Delta */
-        justify-content: center;
-    }
-    
-    /* Título (Faturamento Total, Ticket Médio, etc.) */
-    .card-titulo {
-        font-size: 0.7rem; 
-        color: #94a3b8;                  /* Cinza mais claro/suave do print */
-        font-weight: 400;
-        margin-bottom: 2px;
-    }
-    
-    /* Valor Principal (O destaque numérico) */
-    .card-valor {
-        font-size: 1.2rem;              /* Tamanho perfeito para não estourar nas 4 colunas */
-        font-weight: 300;                /* Semi-bold */
-        color: #0f172a;                  /* Azul escuro/Preto asfalto */
-        line-height: 1.2;
-        align-self: center;          /* Alinha o valor à esquerda do bloco de texto */
-    }
-    
-    /* Subtexto / Delta (321 vendas no período, etc.) */
-    .card-delta {
-        font-size: 0.7rem; 
-        color: #94a3b8;                  /* Mesma cor discreta do título */
-        margin-top: 4px;
-    }
-    </style>
-    """
+from scripts.get_data import (
+    get_faturamento_total,
+    get_total_vendas,
+    get_ticket_medio,
+    get_lucro_total,
+    get_margem_lucro_geral,
+    get_vendas_medias_diarias,
+    get_faturamento_por_produto
 )
 
-# Cabeçalho
-st.title("Dados Estatísticos")
+from scripts.layout import (periodo, 
+                            cabecalho, 
+                            layout,
+                            kpi_card,
+                            divisor,
+                            secao_container
+                            )
 
-# Primeira linha de cards
+from scripts.utils import calcular_grandezas_periodo
+
+st.set_page_config(
+    page_title="Dashboard de Desempenho",
+    page_icon="📊",
+    layout="wide"
+)
+
+# layout
+layout()
+
+# Filtro de período
+start_date, end_date = periodo("Desempenho")
+
+faturamento_total = get_faturamento_total(start_date, end_date)
+vendas_periodo = get_total_vendas(start_date, end_date)
+ticket_medio = get_ticket_medio(start_date, end_date)
+lucro_bruto = get_lucro_total(start_date, end_date)
+margem_lucro = get_margem_lucro_geral(start_date, end_date)
+vendas_medias_diarias = get_vendas_medias_diarias(start_date, end_date)
+tabela_produtos = get_faturamento_por_produto(start_date, end_date)
+
+
+dias=calcular_grandezas_periodo(start_date, end_date)['dias_totais']
+semanas=calcular_grandezas_periodo(start_date, end_date)['semanas_totais']
+meses=calcular_grandezas_periodo(start_date, end_date)['meses_totais']
+
+# Cabeçalho
+cabecalho("Gestão de Performance Comercial", "Acompanhamento do faturamento, ticket médio e saúde financeira")
+
+
 card_11, card_12, card_13 = st.columns(3, gap="small")
 
 with card_11:
-    st.html(
-        """
-        <div class="meu-card-customizado">
-            <div class="card-icone-espaco"></div>
-            <div class="card-conteudo-texto">
-                <div class="card-titulo">Receita Mensal</div>
-                <div class="card-valor">""" + "R$ " + str(faturamento_total) + """</div>
-                <div class="card-delta">""" + str(vendas_periodo) + """ vendas no período</div>
-            </div>
-        </div>
-        """
+    kpi_card(
+    titulo="Ticket Médio",
+    valor=ticket_medio,
+    texto_status="Receita ÷ Total de Vendas",
+    formato="moeda"
     )
 
 with card_12:
-    st.html(
-        """
-        <div class="meu-card-customizado">
-            <div class="card-icone-espaco"></div>
-            <div class="card-conteudo-texto">
-                <div class="card-titulo">Receita Semanal Média no Período</div>
-                <div class="card-valor">""" + "R$ " + str(ticket_medio) + """</div>
-                <div class="card-delta">Valor médio por venda</div>
-            </div>
-        </div>
-        """
+    kpi_card(
+    titulo="Vendas",
+    valor=vendas_periodo,
+    texto_status="Total de Vendas",
+    formato="unidade"
     )
 
 with card_13:
-    st.html(
-        """
-        <div class="meu-card-customizado">
-            <div class="card-icone-espaco"></div>
-            <div class="card-conteudo-texto">
-                <div class="card-titulo">Receita Diária Média no Período</div>
-                <div class="card-valor">R$ 4.441,09</div>
-                <div class="card-delta">60,3% de margem</div>
-            </div>
-        </div>
-        """
+    kpi_card(
+    titulo="Faturamento",
+    valor=faturamento_total,
+    texto_status="Total de Receita",
+    formato="moeda"
     )
 
-st.markdown("---")
+divisor()
+
+# Segunda linha de cards
+# Primeira linha de card
+card_21, card_22, card_23 = st.columns(3, gap="small")
+
+with card_21:
+    kpi_card(
+    titulo="Receita Mensal média",
+    valor=faturamento_total/meses,
+    texto_status= f'Total de meses ={meses}',
+    formato="moeda"
+    )
+  
+with card_22:
+    kpi_card(
+    titulo="Receita Semanal Média no Período",
+    valor=faturamento_total/semanas,
+    texto_status= f'Total de Semanas = {semanas}',
+    formato="moeda"
+    )
+   
+with card_23:
+    kpi_card(
+    titulo="Receita Diária Média no Período",
+    valor=faturamento_total/dias,
+    texto_status= f'Número de dias = {dias}',
+    formato="moeda"
+    )
+    
+divisor()
+
+secao_container(
+    titulo= "Faturamento por Produto",
+    conteudo=tabela_produtos,
+    altura_tabela = 250,
+    mensagem_vazio = "Nenhum dado disponível.",
+    icone = " "
+)
+
+divisor()
+
+
