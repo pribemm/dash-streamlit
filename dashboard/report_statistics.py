@@ -15,7 +15,8 @@ from scripts.get_data import (
     get_lucro_total,
     get_margem_lucro_geral,
     get_vendas_medias_diarias,
-    get_faturamento_por_produto
+    get_faturamento_por_produto,
+    get_margem_lucro_produtos
 )
 
 from scripts.layout import (periodo, 
@@ -23,7 +24,8 @@ from scripts.layout import (periodo,
                             layout,
                             kpi_card,
                             divisor,
-                            secao_container
+                            secao_container,
+                            secao_ranking_barras
                             )
 
 from scripts.utils import calcular_grandezas_periodo
@@ -124,5 +126,24 @@ secao_container(
 )
 
 divisor()
+
+ranking_margem_lucro = get_margem_lucro_produtos(start_date, end_date)
+ranking_margem_lucro_exibicao = ranking_margem_lucro.copy()
+if not ranking_margem_lucro_exibicao.empty:
+    colunas_margem = [
+        col for col in ['Produto', 'Margem de Lucro']
+        if col in ranking_margem_lucro_exibicao.columns
+    ]
+    ranking_margem_lucro_exibicao = ranking_margem_lucro_exibicao[colunas_margem]
+
+secao_ranking_barras(
+df=ranking_margem_lucro_exibicao,
+col_nome="name_product",
+col_valor="margem_percentual",
+col_texto_barra="total_lucro",
+titulo="Ranking de Margem de Lucro",
+descricao="Top 5 produtos com maior margem de lucro no período selecionado.",
+)
+
 
 

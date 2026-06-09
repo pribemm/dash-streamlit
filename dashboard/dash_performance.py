@@ -12,8 +12,7 @@ from scripts.get_data import (
     get_vendas_produtos,
     get_margem_lucro_produtos,
     get_vendas_categorias,
-    get_indice_retorno_rentabilidade,
-    grafico_barras_horizontais
+    get_indice_retorno_rentabilidade
 )
 from scripts.layout import (periodo, 
                             rodape, 

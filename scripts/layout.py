@@ -8,21 +8,15 @@ from scripts.utils import exibir_dataframe
 
 import streamlit as st
 
-def periodo(title):
-    col_title, col_filter = st.columns([3, 1])
-
-    with col_title:
-        st.title(title)
-
-    with col_filter:
-        st.markdown("<br>", unsafe_allow_html=True)
-        periodo_selecionado = st.selectbox(
-            "Selecione o período:",
-            ["Diário", "Semanal", "Mensal", "Trimestral", "Semestral", "Anual", "Personalizado"],
-            index=5,
-            key="periodo_selectbox"  # Adicionar key para evitar duplicação
-        )
-
+def periodo():
+    # st.markdown("<br>", unsafe_allow_html=True)
+    periodo_selecionado = st.selectbox(
+        "Selecione o período:",
+        ["Diário", "Semanal", "Mensal", "Trimestral", "Semestral", "Anual", "Personalizado"],
+        index=5,
+        key="periodo_selectbox"  # Adicionar key para evitar duplicação
+    )
+    
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     start_date = None
     end_date = None
@@ -46,9 +40,7 @@ def periodo(title):
         start_date = today - relativedelta(years=1)
         end_date = today
     elif periodo_selecionado == "Personalizado":
-        
         col1, col2 = st.columns(2)
-        
         with col1:
             start_date = st.date_input(
                 "Data Inicial", 
@@ -63,19 +55,13 @@ def periodo(title):
                 format="DD/MM/YYYY",
                 key="end_date"
             )
-        
+
         if start_date > end_date:
             st.error("A data inicial deve ser anterior à data final!")
-        
-        # Converter para datetime
-        start_date = datetime.combine(start_date, datetime.min.time())
-        end_date = datetime.combine(end_date, datetime.max.time())
-        
-        # Exibir o período selecionado
-        st.info(f"Período selecionado: {start_date.strftime('%d/%m/%Y')} a {end_date.strftime('%d/%m/%Y')}")
 
-    st.markdown("---")
-    st.caption(f"Última atualização: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+    # Converter para datetime
+    start_date = datetime.combine(start_date, datetime.min.time())
+    end_date = datetime.combine(end_date, datetime.max.time())
 
     return start_date, end_date
 
@@ -252,7 +238,56 @@ def layout():
             font-weight: 700;
         }
 
-        /* Dataframes */
+        /* Tooltip para KPI */
+        .kpi-with-tooltip {
+            position: relative;
+            cursor: help;
+            border-bottom: 1px dotted #6b7280;
+        }
+
+        .kpi-with-tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #1f2937;
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .kpi-with-tooltip::before {
+            content: '';
+            position: absolute;
+            bottom: 115%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 6px solid transparent;
+            border-top-color: #1f2937;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 1000;
+        }
+
+        .kpi-with-tooltip:hover::after,
+        .kpi-with-tooltip:hover::before {
+            opacity: 1;
+        }
+
+        .kpi-neutral {
+            color: #2563eb;
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
         [data-testid="stDataFrame"] {
             border-radius: 12px;
             overflow: hidden;
@@ -299,7 +334,8 @@ def kpi_card(
     sufixo: str = "",
     classe_status: str = "",
     texto_status: str = "",
-    formato: str = "decimal"  # "numero", "percentual", "moeda"
+    formato: str = "decimal",  # "numero", "percentual", "moeda"
+    ajuda: str = None
 ):
     """
     Componente de KPI reutilizável
@@ -311,12 +347,16 @@ def kpi_card(
     - classe_status: classe CSS (ex: sucesso, alerta, negativo)
     - texto_status: texto abaixo do valor
     - formato: "decimal", "percentual", "moeda", "inteiro"
+    - ajuda: mensagem de ajuda ao passar o mouse (opcional)
     """
 
     if formato == "percentual":
         valor_fmt = f"{valor:.2f}%".replace(".", ",")
     elif formato == "moeda":
-        valor_fmt = f"R$ {valor:,.2f}".replace(".", ",")
+        if valor is None:
+            valor_fmt = "—"  # ou "Sem dados"
+        else:
+            valor_fmt = f"R$ {valor:,.2f}".replace(".", ",")
     elif formato == "decimal":
         valor_fmt = f"{valor:.2f}"
     elif formato == "unidade":
@@ -324,9 +364,13 @@ def kpi_card(
     else:
         valor_fmt = f"{valor}"
 
+    # Adicionar classe de tooltip se houver ajuda
+    classe_tooltip = "kpi-with-tooltip" if ajuda else ""
+    atributo_tooltip = f'data-tooltip="{ajuda}"' if ajuda else ""
+
     with st.container(border=True):
         st.markdown(f"""
-        <div class="kpi-box">
+        <div class="kpi-box {classe_tooltip}" {atributo_tooltip}>
             <div class="kpi-label">{titulo}</div>
             <div class="kpi-value">{valor_fmt}{sufixo}</div>
             <div class="{classe_status}">{texto_status}</div>
