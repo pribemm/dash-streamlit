@@ -49,8 +49,6 @@ ranking_vendas_categorias_exibicao = ranking_vendas_categorias.copy()
 if not ranking_vendas_categorias_exibicao.empty and 'Valor Total' in ranking_vendas_categorias_exibicao.columns:
     ranking_vendas_categorias_exibicao['Valor Total'] = ranking_vendas_categorias_exibicao['Valor Total'].apply(formatar_moeda)
 
-# ranking_vendas_exibicao = ranking_vendas.copy()
-
 ranking_margem_lucro_exibicao = ranking_margem_lucro.copy()
 
 if not ranking_margem_lucro_exibicao.empty:
