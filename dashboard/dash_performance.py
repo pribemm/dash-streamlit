@@ -36,7 +36,7 @@ st.set_page_config(
 layout()
 
 # Filtro de período
-start_date, end_date = periodo("Desempenho")
+start_date, end_date = periodo()
 
 # Carregamento de Dados
 ranking_vendas_categorias = get_vendas_categorias(start_date, end_date)
@@ -49,7 +49,7 @@ ranking_vendas_categorias_exibicao = ranking_vendas_categorias.copy()
 if not ranking_vendas_categorias_exibicao.empty and 'Valor Total' in ranking_vendas_categorias_exibicao.columns:
     ranking_vendas_categorias_exibicao['Valor Total'] = ranking_vendas_categorias_exibicao['Valor Total'].apply(formatar_moeda)
 
-ranking_vendas_exibicao = ranking_vendas.copy()
+# ranking_vendas_exibicao = ranking_vendas.copy()
 
 ranking_margem_lucro_exibicao = ranking_margem_lucro.copy()
 
@@ -120,10 +120,12 @@ col_produtos, col_margem = st.columns(2, gap="large")
 
 with col_produtos:
     secao_ranking_barras(
-    df=ranking_vendas_exibicao,
+    df=ranking_vendas,
     col_nome="Produto",
     col_valor="Valor Total das Vendas",
     col_texto_barra="Quantidade Vendida",
+    tipo_valor="moeda",
+    tipo_texto_barra="unidade",
     titulo="Ranking de Vendas de Produtos",
     descricao="Top 5 produtos com maior volume financeiro no período selecionado.",
     )
@@ -134,6 +136,8 @@ with col_margem:
     col_nome="name_product",
     col_valor="margem_percentual",
     col_texto_barra="total_lucro",
+    tipo_valor="percentual",
+    tipo_texto_barra="moeda",
     titulo="Ranking de Margem de Lucro",
     descricao="Top 5 produtos com maior margem de lucro no período selecionado.",
     )

@@ -40,7 +40,7 @@ st.set_page_config(
 layout()
 
 # Filtro de período
-start_date, end_date = periodo("Desempenho")
+start_date, end_date = periodo()
 
 faturamento_total = get_faturamento_total(start_date, end_date)
 vendas_periodo = get_total_vendas(start_date, end_date)
@@ -57,7 +57,6 @@ meses=calcular_grandezas_periodo(start_date, end_date)['meses_totais']
 
 # Cabeçalho
 cabecalho("Gestão de Performance Comercial", "Acompanhamento do faturamento, ticket médio e saúde financeira")
-
 
 card_11, card_12, card_13 = st.columns(3, gap="small")
 
@@ -87,8 +86,6 @@ with card_13:
 
 divisor()
 
-# Segunda linha de cards
-# Primeira linha de card
 card_21, card_22, card_23 = st.columns(3, gap="small")
 
 with card_21:
@@ -128,19 +125,14 @@ secao_container(
 divisor()
 
 ranking_margem_lucro = get_margem_lucro_produtos(start_date, end_date)
-ranking_margem_lucro_exibicao = ranking_margem_lucro.copy()
-if not ranking_margem_lucro_exibicao.empty:
-    colunas_margem = [
-        col for col in ['Produto', 'Margem de Lucro']
-        if col in ranking_margem_lucro_exibicao.columns
-    ]
-    ranking_margem_lucro_exibicao = ranking_margem_lucro_exibicao[colunas_margem]
 
 secao_ranking_barras(
-df=ranking_margem_lucro_exibicao,
+df=ranking_margem_lucro,
 col_nome="name_product",
 col_valor="margem_percentual",
 col_texto_barra="total_lucro",
+tipo_texto_barra="moeda",
+tipo_valor="percentual",
 titulo="Ranking de Margem de Lucro",
 descricao="Top 5 produtos com maior margem de lucro no período selecionado.",
 )

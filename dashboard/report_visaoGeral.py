@@ -22,15 +22,17 @@ from scripts.get_data import (
     get_dados_vendas_filtrados,
     get_lucro_por_periodo,
     get_vendas_produtos,
+    get_insumos_estoque_baixo,
 )
 
-from scripts.layout import (periodo, 
-                            cabecalho, 
-                            layout,
-                            kpi_card,
-                            divisor,
-                            secao_ranking_barras
-                            )
+from scripts.layout import (
+    cabecalho,
+    layout,
+    kpi_card,
+    divisor,
+    secao_ranking_barras,
+    cards_grid,
+)
 
 from scripts.utils import (calcular_grandezas_periodo, gerar_grafico_temporal,
                            gerar_grafico)
@@ -43,7 +45,6 @@ st.set_page_config(
 
 # layout
 layout()
-
 
 # Cabeçalho
 cabecalho("Visão Geral", "Dados de vendas e faturamento")
@@ -174,6 +175,23 @@ with col_14:
     formato="unidade",
     ajuda="Total de vendas dividido pelo número de dias do período."
     )
+
+low_stock_insumos = get_insumos_estoque_baixo(start_date, end_date)
+if not low_stock_insumos.empty:
+    st.subheader("Insumos com Estoque Baixo")
+    produtos_baixo = []
+    for _, row in low_stock_insumos.iterrows():
+        produtos_baixo.append(
+            (
+                row["Insumo"],
+                row["Unidade"],
+                f"{row['Dias']} d",
+                f"{row['Estoque Atual']:.2f}"
+            )
+        )
+    cards_grid(produtos_baixo, n_colunas=4)
+else:
+    st.info("Nenhum insumo com estoque abaixo do mínimo no período selecionado.")
 
 divisor()
 
