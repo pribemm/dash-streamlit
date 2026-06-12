@@ -30,17 +30,20 @@ from scripts.layout import (periodo,
 
 from scripts.utils import calcular_grandezas_periodo
 
-st.set_page_config(
-    page_title="Dashboard de Desempenho",
-    page_icon="📊",
-    layout="wide"
-)
 
 # layout
 layout()
 
-# Filtro de período
-start_date, end_date = periodo()
+st.title("Estatísticas")
+
+c11, c12 = st.columns([2,1])
+
+with c11:
+    st.subheader("Estatísticas de Vendas no Período")
+
+with c12:
+    start_date, end_date = periodo()
+
 
 faturamento_total = get_faturamento_total(start_date, end_date)
 vendas_periodo = get_total_vendas(start_date, end_date)
@@ -54,9 +57,6 @@ tabela_produtos = get_faturamento_por_produto(start_date, end_date)
 dias=calcular_grandezas_periodo(start_date, end_date)['dias_totais']
 semanas=calcular_grandezas_periodo(start_date, end_date)['semanas_totais']
 meses=calcular_grandezas_periodo(start_date, end_date)['meses_totais']
-
-# Cabeçalho
-cabecalho("Gestão de Performance Comercial", "Acompanhamento do faturamento, ticket médio e saúde financeira")
 
 card_11, card_12, card_13 = st.columns(3, gap="small")
 

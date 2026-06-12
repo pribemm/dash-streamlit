@@ -26,7 +26,6 @@ from scripts.get_data import (
 )
 
 from scripts.layout import (
-    cabecalho,
     layout,
     kpi_card,
     divisor,
@@ -37,80 +36,80 @@ from scripts.layout import (
 from scripts.utils import (calcular_grandezas_periodo, gerar_grafico_temporal,
                            gerar_grafico)
 
-st.set_page_config(
-    page_title="Visão Geral",
-    page_icon="📊",
-    layout="wide"
-)
-
 # layout
 layout()
 
-# Cabeçalho
-cabecalho("Visão Geral", "Dados de vendas e faturamento")
+st.title("Visão Geral")
 
-# Filtros
-col_opt_granularidade, col_opt_periodo, col_opt_grafico = st.columns(3)
+c11, c12 = st.columns(2)
 
-with col_opt_periodo:
-    periodo_selecionado = st.selectbox(
-        "Selecione o período:",
-        ["Diário", "Semanal", "Mensal", "Trimestral", "Semestral", "Anual", "Personalizado"],
-        index=5,
-        key="periodo_selectbox"
-    )
-    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
-    start_date = None
-    end_date = None
+with c11:
+    st.subheader("Dados de Vendas e Faturamento no Período")
 
-    if periodo_selecionado == "Diário":
-        start_date = today - timedelta(days=1)
-        end_date = today
-    elif periodo_selecionado == "Semanal":
-        start_date = today - timedelta(weeks=1)
-        end_date = today
-    elif periodo_selecionado == "Mensal":
-        start_date = today - relativedelta(months=1)
-        end_date = today
-    elif periodo_selecionado == "Trimestral":
-        start_date = today - relativedelta(months=3)
-        end_date = today
-    elif periodo_selecionado == "Semestral":
-        start_date = today - relativedelta(months=6)
-        end_date = today
-    elif periodo_selecionado == "Anual":
-        start_date = today - relativedelta(years=1)
-        end_date = today
-    elif periodo_selecionado == "Personalizado":
-        with col_opt_grafico:
-            col1, col2 = st.columns(2)
-            with col1:
-                start_date = st.date_input(
-                    "Data Inicial", 
-                    value=today - timedelta(days=30),
-                    format="DD/MM/YYYY",
-                    key="start_date"
-                )
-            with col2:
-                end_date = st.date_input(
-                    "Data Final", 
-                    value=today,
-                    format="DD/MM/YYYY",
-                key="end_date"
-            )
-            if start_date > end_date:
-                st.error("A data inicial deve ser anterior à data final!")
+with c12:
+    col_periodo, col_personalizado, col_granularidade = st.columns(3)
+    with col_periodo:
+        periodo_selecionado = st.selectbox(
+            "Selecione o período:",
+            ["Diário", "Semanal", "Mensal", "Trimestral", "Semestral", "Anual", "Personalizado"],
+            index=5,
+            key="periodo_selectbox"
+        )
+        
+        today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        start_date = None
+        end_date = None
 
-    start_date = datetime.combine(start_date, datetime.min.time())
-    end_date = datetime.combine(end_date, datetime.max.time())
+        if periodo_selecionado == "Diário":
+            start_date = today - timedelta(days=1)
+            end_date = today
+        elif periodo_selecionado == "Semanal":
+            start_date = today - timedelta(weeks=1)
+            end_date = today
+        elif periodo_selecionado == "Mensal":
+            start_date = today - relativedelta(months=1)
+            end_date = today
+        elif periodo_selecionado == "Trimestral":
+            start_date = today - relativedelta(months=3)
+            end_date = today
+        elif periodo_selecionado == "Semestral":
+            start_date = today - relativedelta(months=6)
+            end_date = today
+        elif periodo_selecionado == "Anual":
+            start_date = today - relativedelta(years=1)
+            end_date = today
+        elif periodo_selecionado == "Personalizado":
+            with col_personalizado:
+                col1, col2 = st.columns(2)
+                with col1:
+                    start_date = st.date_input(
+                        "Data Inicial", 
+                        value=today - timedelta(days=30),
+                        format="DD/MM/YYYY",
+                        key="start_date"
+                    )
+                with col2:
+                    end_date = st.date_input(
+                        "Data Final", 
+                        value=today,
+                        format="DD/MM/YYYY",
+                        key="end_date"
+                    )
 
-with col_opt_granularidade:
-    opcao_granularidade = st.selectbox(
-        "Agrupamento do Gráfico:",
-        options=["Diaria", "Semanal", "Mensal"],
-        index=0
-    )
+                if start_date > end_date:
+                    st.error("A data inicial deve ser anterior à data final!")
 
+            start_date = datetime.combine(start_date, datetime.min.time())
+            end_date = datetime.combine(end_date, datetime.max.time())
+
+
+    with col_granularidade:
+        opcao_granularidade = st.selectbox(
+            "Agrupamento dos Gráficos:",
+            options=["diaria", "semanal", "mensal"],
+            index=0
+        )
+    
 st.divider()
 
 # Exibir o período selecionado
@@ -128,6 +127,8 @@ lucro_bruto = get_lucro_total(start_date, end_date)
 margem_lucro = get_margem_lucro_geral(start_date, end_date)
 vendas_medias_diarias = vendas_periodo/dias
 tabela_produtos = get_faturamento_por_produto(start_date, end_date)
+df_lucro_periodo = get_lucro_por_periodo(start_date, end_date)
+df_vendas_bruto=get_dados_vendas_filtrados(start_date, end_date)
 
 # Carregar métricas e dados agregados
 
@@ -198,9 +199,6 @@ divisor()
 # Segunda linha - Gráficos de evolução temporal
 st.subheader("Evolução Temporal")
 
-df_vendas_bruto=get_dados_vendas_filtrados(start_date, end_date)
-
-
 gerar_grafico(
     titulo="Evolução de Vendas no Período",
     descricao="Gráfico de evolução do volume de vendas ao longo do tempo.",
@@ -212,20 +210,10 @@ gerar_grafico(
     tipo_grafico='barras'
 )
 
-# gerar_grafico_temporal(
-#     titulo="Evolução de Vendas no Período",
-#     descricao="Gráfico de evolução do volume de vendas ao longo do tempo.", 
-#     granularidade=opcao_granularidade,
-#     dataframe=df_vendas_bruto,
-#     coluna='quantity',
-#     start_date=start_date,
-#     end_date=end_date
-# )
-
 # Obter dados de lucro por período
-df_lucro_periodo = get_lucro_por_periodo(start_date, end_date)
 
 # Mapear nomes para colunas
+
 mapa_colunas = {
     "Receita": "total_price",
     "Lucro Bruto": "lucro_bruto_total"

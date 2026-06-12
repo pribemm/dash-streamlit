@@ -8,15 +8,22 @@ sys.path.append(parent_dir)
 
 import streamlit as st
 from scripts.get_data import get_consumo_insumos_por_periodo, get_giro_estoque_insumos
-from scripts.layout import (periodo, secao_ranking_barras)
+from scripts.layout import (layout, periodo, secao_ranking_barras)
+
+layout()
 
 st.title("Estoque e Insumos")
 
-start_date, end_date = periodo()
+c11, c12 = st.columns([2,1])
 
-st.subheader("Consumo de Insumos no Período")
+with c11:
+    st.subheader("Consumo de Insumos no Período")
+
+with c12:
+    start_date, end_date = periodo()
 
 consumo=get_consumo_insumos_por_periodo(start_date, end_date)
+
 secao_ranking_barras(
     df=consumo,
     col_nome= "Insumo",
@@ -27,7 +34,6 @@ secao_ranking_barras(
     top_n = 10,
     tipo_valor = "moeda",
     tipo_texto_barra = "peso",
-    prefixo_valor = "R$",
     mensagem_vazio = "Nenhum dado disponível.",
 )
 
@@ -51,15 +57,5 @@ st.markdown("""
 
 html = '<div class="grid-container">'
 
-produtos = [
-    ("Arroz", "Kg", 13, 49),
-    ("Feijão", "Kg", 1, 4),
-    ("Filé de frango", "Kg", 10, 20),
-    ("Refrigerante", "Uni.", 11, 490),
-    ("Macarrão", "Kg", 5, 30),
-    ("Carne", "Kg", 8, 120),
-    ("Leite", "Uni.", 20, 100),
-    ("Suco", "Uni.", 15, 75),
-]
 
 # cards_grid(produtos, card_estoque, n_colunas=4)

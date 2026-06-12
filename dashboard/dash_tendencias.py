@@ -20,8 +20,7 @@ from scripts.layout import (layout,
 # Aplicar o design system global (fontes, cores de fundo e espaçamentos)
 layout()
 
-# Cabeçalho estilizado com tipografia hierárquica
-cabecalho("Tendências e Análises", "Análise de sazonalidade, comportamento semanal e projeções de crescimento")
+st.title("Tendências de Vendas")
 
 today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
 end_date = datetime.combine(today, datetime.max.time())

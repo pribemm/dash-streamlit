@@ -25,18 +25,18 @@ from scripts.layout import (periodo,
 
 from scripts.utils import (formatar_moeda)
 
-
-st.set_page_config(
-    page_title="Dashboard de Desempenho",
-    page_icon="📊",
-    layout="wide"
-)
-
 # layout
 layout()
 
-# Filtro de período
-start_date, end_date = periodo()
+st.title("Desempenho Comercial")
+
+c11, c12 = st.columns([2,1])
+
+with c11:
+    st.subheader("Dados de Desempenho no Período")
+
+with c12:
+    start_date, end_date = periodo()
 
 # Carregamento de Dados
 ranking_vendas_categorias = get_vendas_categorias(start_date, end_date)
@@ -58,8 +58,6 @@ if not ranking_margem_lucro_exibicao.empty:
     ]
     ranking_margem_lucro_exibicao = ranking_margem_lucro_exibicao[colunas_margem]
 
-# Cabeçalho
-cabecalho("Desempenho", "Visão geral de vendas, categorias, produtos e rentabilidade no período selecionado.")
 
 # Indicadores
 status_rentabilidade = "Rentável" if indice_rentabilidade > 0 else "Não rentável"
