@@ -130,9 +130,7 @@ secao_ranking_barras(
 df=ranking_margem_lucro,
 col_nome="name_product",
 col_valor="margem_percentual",
-col_texto_barra="total_lucro",
 tipo_texto_barra="moeda",
-tipo_valor="percentual",
 titulo="Ranking de Margem de Lucro",
 descricao="Top 5 produtos com maior margem de lucro no período selecionado.",
 )

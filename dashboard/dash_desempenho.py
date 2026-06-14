@@ -17,7 +17,6 @@ from scripts.get_data import (
 from scripts.layout import (periodo, 
                             rodape, 
                             layout, 
-                            cabecalho, 
                             kpi_card, 
                             divisor, 
                             secao_container,
@@ -37,6 +36,9 @@ with c11:
 
 with c12:
     start_date, end_date = periodo()
+
+# Exibir o período selecionado
+st.info(f"Período selecionado: {start_date.strftime('%d/%m/%Y')} a {end_date.strftime('%d/%m/%Y')}")
 
 # Carregamento de Dados
 ranking_vendas_categorias = get_vendas_categorias(start_date, end_date)
@@ -62,11 +64,10 @@ if not ranking_margem_lucro_exibicao.empty:
 # Indicadores
 status_rentabilidade = "Rentável" if indice_rentabilidade > 0 else "Não rentável"
 classe_rentabilidade = "kpi-positive" if indice_rentabilidade > 0 else "kpi-negative"
-total_categorias = len(ranking_vendas_categorias) if ranking_vendas_categorias is not None else 0
-total_produtos = len(ranking_vendas) if ranking_vendas is not None else 0
-total_produtos_margem = len(ranking_margem_lucro) if ranking_margem_lucro is not None else 0
+total_produtos = ranking_vendas['Quantidade Vendida'].sum() if not ranking_vendas.empty else 0
+receita = ranking_vendas['Valor Total das Vendas'].sum() if not ranking_vendas.empty else 0
 
-col_kpi1, col_kpi2, col_kpi3, col_kpi4 = st.columns(4, gap="large")
+col_kpi1, col_kpi2, col_kpi3 = st.columns(3, gap="large")
 
 with col_kpi1:
     kpi_card(
@@ -77,15 +78,8 @@ with col_kpi1:
     texto_status=status_rentabilidade
     )
 
+
 with col_kpi2:
-    kpi_card(
-    titulo="Categorias Analisadas",
-    valor=total_categorias,
-    formato="unidade"
-    )
-
-
-with col_kpi3:
     kpi_card(
     titulo="Produtos vendidos",
     valor=total_produtos,
@@ -93,11 +87,11 @@ with col_kpi3:
     )
 
 
-with col_kpi4:
+with col_kpi3:
     kpi_card(
     titulo="Produtos com margem",
-    valor=total_produtos_margem,
-    formato="unidade"
+    valor=receita,
+    formato="moeda"
     )
     
 divisor()
@@ -119,24 +113,41 @@ with col_produtos:
     df=ranking_vendas,
     col_nome="Produto",
     col_valor="Valor Total das Vendas",
-    col_texto_barra="Quantidade Vendida",
     tipo_valor="moeda",
-    tipo_texto_barra="unidade",
-    titulo="Ranking de Vendas de Produtos",
-    descricao="Top 5 produtos com maior volume financeiro no período selecionado.",
+    titulo="Ranking de Receita por Produto",
+    descricao="Produtos com maior volume financeiro no período selecionado.",
     )
 
+    secao_ranking_barras(
+    df=ranking_margem_lucro,
+    col_nome="name_product",
+    col_valor="total_lucro",
+    tipo_valor="moeda",
+    titulo="Ranking de Lucro por Produto",
+    descricao="Produtos com maior margem de lucro.",
+    )    
+
 with col_margem:
+    
+    secao_ranking_barras(
+    df=ranking_vendas,
+    col_nome="Produto",
+    col_valor="Quantidade Vendida",
+    tipo_valor="unidade",
+    titulo="Ranking de Vendas por Produto",
+    descricao="Produtos com maior volume de vendas no período selecionado.",
+    )
+
     secao_ranking_barras(
     df=ranking_margem_lucro,
     col_nome="name_product",
     col_valor="margem_percentual",
-    col_texto_barra="total_lucro",
     tipo_valor="percentual",
-    tipo_texto_barra="moeda",
-    titulo="Ranking de Margem de Lucro",
-    descricao="Top 5 produtos com maior margem de lucro no período selecionado.",
+    titulo="Ranking de Margem de Lucro por Produto",
+    descricao="Produtos com maior margem de lucro.",
     )
 
+    
+
 # Rodapé
-rodape()
+rodape()    

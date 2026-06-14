@@ -2,9 +2,9 @@
 from datetime import datetime, timedelta
 import streamlit as st
 from dateutil.relativedelta import relativedelta
-import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
+# import pandas as pd
+# import plotly.express as px
+# import plotly.graph_objects as go
 import sys
 import os
 
@@ -15,7 +15,6 @@ sys.path.append(parent_dir)
 from scripts.get_data import (
     get_faturamento_total,
     get_total_vendas,
-    get_ticket_medio,
     get_lucro_total,
     get_margem_lucro_geral,
     get_faturamento_por_produto,
@@ -29,13 +28,11 @@ from scripts.layout import (
     layout,
     kpi_card,
     divisor,
-    periodo,
     secao_ranking_barras,
     cards_grid,
 )
 
-from scripts.utils import (calcular_grandezas_periodo, gerar_grafico_temporal,
-                           gerar_grafico)
+from scripts.utils import (calcular_grandezas_periodo, gerar_grafico)
 
 # layout
 layout()
@@ -62,8 +59,8 @@ with c12:
         end_date = None
 
         if periodo_selecionado == "Diário":
-            start_date = today - timedelta(days=1)
-            end_date = today
+            start_date = today # Já é 00:00:00 do dia atual
+            end_date = today.replace(hour=23, minute=59, second=59, microsecond=999999)
         elif periodo_selecionado == "Semanal":
             start_date = today - timedelta(weeks=1)
             end_date = today
@@ -96,7 +93,12 @@ with c12:
                         format="DD/MM/YYYY",
                         key="end_date"
                     )
-
+                if isinstance(start_date, datetime):
+                    end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+                else:
+                    start_date = datetime.combine(start_date, datetime.min.time())
+                    end_date = datetime.combine(end_date, datetime.max.time())
+                
                 if start_date > end_date:
                     st.error("A data inicial deve ser anterior à data final!")
 
@@ -123,11 +125,9 @@ meses=calcular_grandezas_periodo(start_date, end_date)['meses_totais']
 # @st.cache_data(ttl=300)
 faturamento_total = get_faturamento_total(start_date, end_date)
 vendas_periodo = get_total_vendas(start_date, end_date)
-ticket_medio = get_ticket_medio(start_date, end_date)
 lucro_bruto = get_lucro_total(start_date, end_date)
 margem_lucro = get_margem_lucro_geral(start_date, end_date)
 vendas_medias_diarias = vendas_periodo/dias
-tabela_produtos = get_faturamento_por_produto(start_date, end_date)
 df_lucro_periodo = get_lucro_por_periodo(start_date, end_date)
 df_vendas_bruto=get_dados_vendas_filtrados(start_date, end_date)
 
@@ -215,11 +215,6 @@ gerar_grafico(
 
 # Mapear nomes para colunas
 
-mapa_colunas = {
-    "Receita": "total_price",
-    "Lucro Bruto": "lucro_bruto_total"
-}
-
 gerar_grafico(
     titulo="Evolução de Receita e Lucro no Período",
     descricao="Gráfico comparativo entre receita total e lucro bruto ao longo do tempo.",
@@ -236,13 +231,11 @@ divisor()
 
 # Terceira linha - Top Produtos
 ranking_vendas = get_vendas_produtos(start_date, end_date)
-ranking_vendas_exibicao = ranking_vendas.copy()
 
 secao_ranking_barras(
-    df=ranking_vendas_exibicao,
+    df=ranking_vendas,
     col_nome="Produto",
     col_valor="Valor Total das Vendas",
-    col_texto_barra="Quantidade Vendida",
     titulo="Ranking de Vendas de Produtos",
     descricao="Top 5 produtos com maior volume de vendas no período selecionado.",
     )

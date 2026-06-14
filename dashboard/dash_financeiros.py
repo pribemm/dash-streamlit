@@ -26,6 +26,9 @@ with c11:
 with c12:
     start_date, end_date = periodo()
 
+# Exibir o período selecionado
+st.info(f"Período selecionado: {start_date.strftime('%d/%m/%Y')} a {end_date.strftime('%d/%m/%Y')}")
+
 # Dados
 faturamento_total = get_faturamento_total(start_date, end_date)
 custos_totais = get_custos_totais(start_date, end_date)
@@ -62,8 +65,6 @@ divisor()
 secao_ranking_barras(df=formas_pagamento,
                     col_nome="Forma de Pagamento",
                     col_valor="Porcentagem do Total",
-                    col_texto_barra="Total Vendas",
-                    tipo_texto_barra="unidade",
                     tipo_valor="percentual",
                     top_n=len(formas_pagamento),
                     titulo="Formas de Pagamento",
