@@ -29,6 +29,7 @@ from scripts.layout import (
     layout,
     kpi_card,
     divisor,
+    periodo,
     secao_ranking_barras,
     cards_grid,
 )

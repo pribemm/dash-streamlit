@@ -1,16 +1,8 @@
-import sys
-import os
-
-current_dir = os.path.dirname(__file__)
-parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
-sys.path.append(parent_dir)
-
-
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-from scripts.get_data import carregar_tabela
-
+import plotly.graph_objects as go
+    
 
 def formatar_moeda(valor):
     try:
@@ -24,6 +16,19 @@ def formatar_percentual(valor):
         return f"{float(valor):.2f}%".replace(".", ",")
     except Exception:
         return valor
+
+def formatar_peso(valor):
+    try:
+        return f"{float(valor):,.2f} Kg".replace(",", "X").replace(".", ",").replace("X", ".")
+    except Exception:
+        return valor
+
+def formatar_decimal(valor):
+    try:
+        return f"{float(valor):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except Exception:
+        return valor
+
 
 
 def exibir_dataframe(df, altura=None):
@@ -135,27 +140,6 @@ def agrupar_por_granularidade(df: pd.DataFrame, coluna_data: str, coluna_valor: 
         
     return df_final.sort_values(by='Tempo')
 
-
-def gerar_grafico_temporal(titulo: str, granularidade: str, dataframe: pd.DataFrame, coluna: str, start_date: datetime = None, end_date: datetime = None, coluna_data: str = 'sold_at'):
-    """
-    Renderiza um gráfico de barras com a mesma aparência de gerar_grafico.
-    """
-    # Se o dataframe original vier vazio, mas temos as datas do filtro,
-    # geramos um dataframe fictício para criar o gráfico zerado em vez de dar Warning
-    if dataframe.empty and start_date and end_date:
-        dataframe = pd.DataFrame({coluna_data: [start_date], coluna: [0.0]})
-
-    gerar_grafico(
-        titulo=titulo,
-        granularidade=granularidade,
-        dataframe=dataframe,
-        start_date=start_date,
-        end_date=end_date,
-        colunas=[coluna],
-        tipo_grafico='barras'
-    )
-
-
 def gerar_grafico(titulo: str,
                 descricao: str,
                 granularidade: str, 
@@ -164,6 +148,7 @@ def gerar_grafico(titulo: str,
                 end_date: datetime = None,
                 colunas: list = None, 
                 tipo_grafico: str = 'barras_empilhadas',
+                coluna_data: str = 'sold_at',
                 cores: dict = None):
     """
     Renderiza gráfico flexível com múltiplas opções de visualização.
@@ -188,12 +173,15 @@ def gerar_grafico(titulo: str,
     tipo_grafico : str
         Tipo de gráfico: 'barras', 'barras_empilhadas' ou 'linhas'
         Padrão: 'barras_empilhadas'
+    coluna_data : str
+        Nome da coluna que contém a informação temporal. Padrão: 'sold_at'
     cores : dict
         Dicionário de cores por coluna. Ex: {'total_price': '#1f77b4', 'lucro_bruto_total': '#2ca02c'}
         Padrão: cores automáticas
     """
-    import plotly.graph_objects as go
-    
+    if dataframe.empty and start_date and end_date:
+        dataframe = pd.DataFrame({coluna_data: [start_date], coluna: [0.0]})
+
     # Configurações padrão
     if colunas is None:
         colunas = ['total_price', 'lucro_bruto_total', 'quantity']
@@ -221,7 +209,7 @@ def gerar_grafico(titulo: str,
     # Tratar dataframe vazio
     if dataframe.empty and start_date and end_date:
         dataframe = pd.DataFrame({
-            'sold_at': [start_date], 
+            coluna_data: [start_date], 
             'total_price': [0.0],
             'lucro_bruto_total': [0.0],
             'quantity': [0.0]
@@ -230,7 +218,7 @@ def gerar_grafico(titulo: str,
     # Agrupar dados para cada coluna
     dfs_agrupados = {}
     for coluna in colunas:
-        df_temp = agrupar_por_granularidade(dataframe, 'sold_at', coluna, granularidade, start_date, end_date)
+        df_temp = agrupar_por_granularidade(dataframe, coluna_data, coluna, granularidade, start_date, end_date)
         dfs_agrupados[coluna] = df_temp
     
     # Mesclar todos os dataframes
@@ -288,3 +276,7 @@ def gerar_grafico(titulo: str,
     )
 
     st.plotly_chart(fig, width='stretch')
+
+def get_payment_name(code):
+    names = {0: 'Crédito', 1: 'Débito', 2: 'Dinheiro', 3: 'PIX'}
+    return names.get(code, 'Outros')
